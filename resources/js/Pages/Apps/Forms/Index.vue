@@ -12,7 +12,7 @@
                         </div>
                         <div class="card-body">
                             <form>
-                                <div class="input-group mb-3" v-if="hasAnyPermission(['roles.create'])">
+                                <div class="input-group mb-3" v-if="hasAnyPermission(['form.create'])">
                                     <Link href="/apps/forms/create" class="btn btn-primary input-group-text"> <i class="fa fa-plus-circle me-2"></i> NEW</Link>
                                     <input type="text" class="form-control" placeholder="search by role name . . .">
 

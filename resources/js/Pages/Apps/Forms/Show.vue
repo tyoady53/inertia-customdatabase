@@ -8,11 +8,11 @@
                 <div class="col-md-12">
                     <div class="card border-0 rounded-3 shadow border-top-purple">
                         <div class="card-header">
-                            <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> {{ table_name }}</span>
+                            <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> FORM {{ table_name }}</span>
                         </div>
                         <div class="card-body">
                             <form>
-                                <div class="input-group mb-3" v-if="hasAnyPermission([table_role])">
+                                <div class="input-group mb-3" v-if="hasAnyPermission([create_data])">
                                     <Link href="/apps/forms/create" class="btn btn-primary input-group-text"> <i class="fa fa-plus-circle me-2"></i> NEW</Link>
                                     <input type="text" class="form-control" placeholder="search by role name . . .">
 
@@ -24,13 +24,13 @@
                                         <th v-for="header in headers"> {{ header.field_description }} </th>
                                 </thead>
                                 <tbody>
-                                    <!-- <tr v-for="form_access in form_accesses">
-                                        <td>{{ form_access.description }}</td><td></td>
+                                    <tr v-for="form in forms">
+                                        <td v-for="header in headers"> {{ form[header.field_name]  }}</td>
                                             <td class="text-center">
-                                                <Link :href="`/apps/forms/${form_access.name}/show`" class="btn btn-success btn-sm me-2"><i class="fa fa-pencil-alt me-1"></i> Open Form</Link>
-                                                <button @click.prevent="destroy(role.id)" v-if="hasAnyPermission(['roles.delete'])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
+                                                <Link :href="`/apps/roles/${table}/edit`" v-if="hasAnyPermission([edit_data])" class="btn btn-success btn-sm me-2"><i class="fa fa-pencil-alt me-1"></i> EDIT</Link>
+                                                <button @click.prevent="destroy(form_access.id)" v-if="hasAnyPermission([delete_data])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
                                         </td>
-                                    </tr> -->
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -64,7 +64,10 @@
             table: Object,
             table_name: Object,
             headers: Object,
-            table_role: Object,
+            create_data: Object,
+            edit_data: Object,
+            delete_data: Object,
+            forms:Object,
         },
 
         setup() {

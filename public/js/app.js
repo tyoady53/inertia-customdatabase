@@ -20775,22 +20775,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
 var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("title", null, "Dashboard - Aplikasi Form Master", -1 /* HOISTED */);
-var _hoisted_2 = {
-  "class": "c-main"
-};
-var _hoisted_3 = {
-  "class": "container-fluid"
-};
-var _hoisted_4 = {
-  "class": "fade-in"
-};
-var _hoisted_5 = {
-  "class": "row"
-};
-var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
-  "class": "text-black-center"
-}, " Holla ", -1 /* HOISTED */);
-
+var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<main class=\"c-main\"><div class=\"container-fluid\"><div class=\"fade-in\"><div class=\"row\"><p class=\"text-black-center\"> Holla </p></div></div></div></main>", 1);
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_Head = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Head");
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Head, null, {
@@ -20798,7 +20783,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return [_hoisted_1];
     }),
     _: 1 /* STABLE */
-  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("main", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [_hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($props.form_access), 1 /* TEXT */)])])])])], 64 /* STABLE_FRAGMENT */);
+  }), _hoisted_2], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),
@@ -22485,7 +22470,7 @@ __webpack_require__.r(__webpack_exports__);
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 ___CSS_LOADER_EXPORT___.push([module.id, "@import url(https://fonts.googleapis.com/css?family=Press+Start+2P);"]);
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\nhtml,\r\nbody {\r\n  width: 100%;\r\n  height: 100%;\r\n  margin: 0;\n}\n* {\n}\n#app403 {\r\n  font-family: \"Press Start 2P\", cursive;\r\n  box-sizing: border-box;\r\n  padding: 1rem;\r\n  background: black;\r\n  display: flex;\r\n  height: 100%;\r\n  justify-content: center;\r\n  align-items: center;\r\n  color: #54fe55;\r\n  text-shadow: 0px 0px 10px;\r\n  font-size: 6rem;\r\n  flex-direction: column;\n}\n#app403 .txt {\r\n  font-size: 1.8rem;\n}\n@keyframes blink {\n0% {\r\n    opacity: 0;\n}\n49% {\r\n    opacity: 0;\n}\n50% {\r\n    opacity: 1;\n}\n100% {\r\n    opacity: 1;\n}\n}\n.blink {\r\n  animation-name: blink;\r\n  animation-duration: 1s;\r\n  animation-iteration-count: infinite;\n}\r\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\nhtml,\r\nbody {\r\n  width: 100%;\r\n  height: 100%;\r\n  margin: 0;\n}\n#app403 {\r\n  font-family: \"Press Start 2P\", cursive;\r\n  box-sizing: border-box;\r\n  padding: 1rem;\r\n  background: black;\r\n  display: flex;\r\n  height: 100%;\r\n  justify-content: center;\r\n  align-items: center;\r\n  color: #54fe55;\r\n  text-shadow: 0px 0px 10px;\r\n  font-size: 6rem;\r\n  flex-direction: column;\n}\n#app403 .txt {\r\n  font-size: 1.8rem;\n}\n@keyframes blink {\n0% {\r\n    opacity: 0;\n}\n49% {\r\n    opacity: 0;\n}\n50% {\r\n    opacity: 1;\n}\n100% {\r\n    opacity: 1;\n}\n}\n.blink {\r\n  animation-name: blink;\r\n  animation-duration: 1s;\r\n  animation-iteration-count: infinite;\n}\r\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 

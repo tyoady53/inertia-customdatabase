@@ -23,9 +23,6 @@ body {
   margin: 0;
 }
 
-* {
-}
-
 #app403 {
   font-family: "Press Start 2P", cursive;
   box-sizing: border-box;

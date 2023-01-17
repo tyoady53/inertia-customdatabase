@@ -9,7 +9,7 @@
             <div class="fade-in">
 
                 <div class="row">
-                    <p class="text-black-center"> Holla </p>{{ form_access }}
+                    <p class="text-black-center"> Holla </p>
                 </div>
 
             </div>

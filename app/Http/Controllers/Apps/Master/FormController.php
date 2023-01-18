@@ -88,7 +88,7 @@ class FormController extends Controller
 			$selected = substr($select_field, 0,-1);
             $form = DB::table($name)->selectRaw($selected)->where('status','1')->get();
 		} else {
-            $form = DB::table($name)->get();
+            $form = DB::table($name)->latest()->get();
         }
         $table_name_to = array();
         $result = '';

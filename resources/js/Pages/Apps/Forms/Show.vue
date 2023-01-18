@@ -21,12 +21,12 @@
                             </form>
                             <table class="table table-striped table-bordered table-hover">
                                 <thead>
-                                        <th v-for="header in headers"> {{ header.field_description }} </th>
+                                       <th v-for="header in headers"> {{ header.field_description }} </th> <th v-if="hasAnyPermission([edit_data]) || hasAnyPermission([delete_data])"> Action </th>
                                 </thead>
                                 <tbody>
                                     <tr v-for="form in forms">
                                         <td v-for="header in headers"> {{ form[header.field_name]  }}</td>
-                                            <td class="text-center">
+                                            <td class="text-center"  v-if="hasAnyPermission([edit_data]) || hasAnyPermission([delete_data])">
                                                 <Link :href="`/apps/roles/${table}/edit`" v-if="hasAnyPermission([edit_data])" class="btn btn-success btn-sm me-2"><i class="fa fa-pencil-alt me-1"></i> EDIT</Link>
                                                 <button @click.prevent="destroy(form_access.id)" v-if="hasAnyPermission([delete_data])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
                                         </td>

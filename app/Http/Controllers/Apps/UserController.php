@@ -148,9 +148,9 @@ class UserController extends Controller
         ]);
 
         if($request->password == '') {
-            
+
             $user->update([
-                'name'  => $request->name,            
+                'name'  => $request->name,
             ]);
         } else {
 

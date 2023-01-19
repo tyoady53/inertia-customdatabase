@@ -1,6 +1,6 @@
 <template>
     <Head>
-        <title> Add New Form</title>
+        <title>Add New Users - Master Form</title>
     </Head>
     <main class="c-main">
         <div class="container-fluid">
@@ -9,28 +9,29 @@
                     <div class="col-md-12">
                         <div class="card border-0 rounded-3 shadow border-top-purple">
                             <div class="card-header">
-                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> ADD ROLE</span>
+                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> ADD FORM</span>
                             </div>
                             <div class="card-body">
 
                                 <form @submit.prevent="submit">
                                     <div class="mb-3">
-                                        <label class="fw-bold">Role Name</label>
-                                        <input class="form-control" v-model="form.name" :class="{ 'is-invalid': errors.name }" type="text" placeholder="Role Name">
+                                        <label class="fw-bold">Form Name</label>
+                                        <input class="form-control" v-model="form.name" :class="{ 'is-invalid': errors.name }" type="text" placeholder="Form Name">
+
                                         <div v-if="errors.name" class="alert alert-danger">
                                             {{ errors.name }}
                                         </div>
                                     </div>
                                     <hr>
                                     <div class="mb-3">
-                                        <label class="fw-bold">Permissions</label>
+                                        <label class="fw-bold">Role</label>
                                         <br>
-                                        <div class="form-check form-check-inline" v-for="(permission, index) in permissions" :key="index">
-                                            <input class="form-check-input" type="checkbox" v-model="form.permissions" :value="permission.name" :id="`check-${permission.id}`">
-                                            <label class="form-check-label" :for="`check-${permission.id}`">{{ permission.name }}</label>
+                                        <div class="form-check form-check-inline" v-for="(role, index) in roles" :key="index">
+                                            <input class="form-check-input" type="checkbox" v-model="form.roles" :value="role.name" :id="`check-${role.id}`">
+                                            <label class="form-check-label" :for="`check-${role.id}`">{{ role.name }}</label>
                                         </div>
 
-                                        <div class="row">
+                                        <div class="row mt-3">
                                             <div class="col-12">
                                                 <button class="btn btn-primary shadow-sm rounded-sm" type="submit">SAVE</button>
                                                 <button class="btn btn-warning shadow-sm rouned-sm ms-3" type="reset">RESET</button>
@@ -70,25 +71,25 @@
 
         props: {
             errors: Object,
-            permissions: Array,
+            roles: Array
         },
 
         setup() {
-
             const form = reactive({
                 name: '',
-                permissions: [],
+                roles: []
             });
 
             const submit = () => {
-                Inertia.post('/apps/roles', {
+
+                Inertia.post('/apps/forms/new_form', {
                     name: form.name,
-                    permissions: form.permissions,
+                    roles: form.roles
                 }, {
                     onSuccess: () => {
                         Swal.fire({
                             title: 'Success!',
-                            text: 'Role saved successfully.',
+                            text: 'User saved successfully.',
                             icon: 'success',
                             showConfirmButton: false,
                             timer: 2000
@@ -96,7 +97,6 @@
                     },
                 });
             }
-
             return {
                 form,
                 submit,

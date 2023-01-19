@@ -39,7 +39,9 @@ Route::prefix('apps')->group(function() {
 
             Route::get('index', [FormController::class, 'index'])->name('forms.index');
 
-            Route::get('create', [FormController::class, 'create'])->name('forms.create');
+            Route::get('create', [FormController::class, 'create_form'])->name('forms.create');
+
+            Route::post('new_form', [FormController::class, 'create'])->name('forms.new_form');
 
             Route::get('{form:slug}/edit', [FormController::class, 'edit'])->name('forms.edit');
 
@@ -55,9 +57,9 @@ Route::prefix('apps')->group(function() {
 
             Route::get('{form:slug}/manage-relation', [FormController::class, 'manage_relation'])->name('forms.manage-relation');
 
-            Route::post('create', [FormController::class, 'store']);
+            Route::post('add_record', [FormController::class, 'store']);
 
-            Route::post('add_record', [FormController::class, 'add_record'])->name('forms.add_record');
+            // Route::post('add_record', [FormController::class, 'add_record'])->name('forms.add_record');
 
             Route::post('update', [FormController::class, 'update'])->name('forms.update');
 

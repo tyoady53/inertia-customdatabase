@@ -21,7 +21,7 @@
             </Link>
         </li>
 
-        <li class="c-sidebar-nav-title" v-if="hasAnyPermission(['roles.index']) || hasAnyPermission(['permissions.index']) || hasAnyPermission(['users.index'])">FORM MANAGEMENT</li>
+        <!-- <li class="c-sidebar-nav-title" v-if="hasAnyPermission(['roles.index']) || hasAnyPermission(['permissions.index']) || hasAnyPermission(['users.index'])">FORM MANAGEMENT</li>
         <li class="c-sidebar-nav-item" v-if="hasAnyPermission(['roles.index'])">
             <Link class="c-sidebar-nav-link" href="/apps/roles" :class="{ 'active': $page.url.startsWith('/apps/roles') }">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shield-check" viewBox="0 0 16 16">
@@ -30,7 +30,7 @@
             </svg>
             <span class="ms-2">ADD FORM</span>
             </Link>
-        </li>
+        </li> -->
 
         <li class="c-sidebar-nav-title" v-if="hasAnyPermission(['roles.index']) || hasAnyPermission(['permissions.index']) || hasAnyPermission(['users.index'])">USER MANAGEMENT</li>
 

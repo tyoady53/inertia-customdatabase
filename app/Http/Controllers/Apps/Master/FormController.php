@@ -13,6 +13,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class FormController extends Controller
@@ -129,18 +130,43 @@ class FormController extends Controller
         ]);
     }
 
-    public function add_table(Request $request){
-        // $user_id = auth()->user()->id;
-        // $carbon         = Carbon::now();
-        // $table_name     = str_replace(' ','',strtolower($request->name));
+    public function create_form(Request $request){
+        $roles = Role::all();
+
+        return inertia('Apps/Forms/Create', [
+            'roles' => $roles,
+        ]);
+    }
+
+    public function create(Request $request){
+        $user_id = auth()->user()->id;
+        $carbon         = Carbon::now();
+        $table_name     = str_replace(' ','',strtolower($request->name));
+        // dd(count($request->roles));
+        $index          = 'form-'.$table_name.'.index';
+        $create         = 'form-'.$table_name.'.create';
+        $edit           = 'form-'.$table_name.'.edit';
+        $delete         = 'form-'.$table_name.'.delete';
         // $group_name     = str_replace(' ','',strtolower($request->table_group));
-        // $query          = "CREATE TABLE $table_name (id int(11) NOT NULL AUTO_INCREMENT, created_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, updated_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-        //  created_by int(11) NOT NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, updated_by int(11) NOT NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, status varchar(1) NOT NULL ,updated_by int(11) NOT NULL, status varchar(1) NOT NULL , PRIMARY KEY (`id`) USING BTREE)";
+        $group_name     = "superadmin";
+        $query          = "CREATE TABLE $table_name (id int(11) NOT NULL AUTO_INCREMENT, created_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, updated_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+         created_by int(11), updated_by int(11), status varchar(1) NOT NULL, PRIMARY KEY (`id`) USING BTREE)";
 
-        // DB::statement($query);
+        DB::statement($query);
 
-        // DB::insert("INSERT INTO master_tables (`group`, `name`, `description`,`is_show`,`created_by`,`updated_by`) VALUES ('$group_name','$table_name','$request->name','1','$user_id','$user_id')");
+        DB::insert("INSERT INTO master_tables (`group`, `name`, `description`,`is_show`,`created_by`,`updated_by`) VALUES ('$group_name','$table_name','$request->name','1','$user_id','$user_id')");
 
-        // return back()->with('success', 'Table was created');
+        $input_index    = Permission::create(['name' => $index,   'guard_name' => 'web']);
+        $input_create   = Permission::create(['name' => $create,  'guard_name' => 'web']);
+        $input_edit     = Permission::create(['name' => $edit,    'guard_name' => 'web']);
+        $create_delete  = Permission::create(['name' => $delete,  'guard_name' => 'web']);
+
+        for($i = 0; $i < count($request->roles); $i++){
+            $role_data = Role::where('name',$request->roles[$i])->first();
+            // RoleHasPermission::create(['permission_id'=>$input_index->id , 'role_id'=>$role_data->id]);
+            DB::table('role_has_permissions')->insert(['permission_id'=>$input_index->id , 'role_id'=>$role_data->id]);
+        }
+
+        return redirect()->route('forms.index');
     }
 }

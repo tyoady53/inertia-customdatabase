@@ -13,7 +13,7 @@
                         <div class="card-body">
                             <form>
                                 <div class="input-group mb-3" v-if="hasAnyPermission([create_data])">
-                                    <Link href="/apps/forms/create" class="btn btn-primary input-group-text"> <i class="fa fa-plus-circle me-2"></i> NEW</Link>
+                                    <Link :href="`/apps/forms/${table}/add_data`" class="btn btn-primary input-group-text"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
                                     <input type="text" class="form-control" placeholder="search by role name . . .">
 
                                     <button class="btn btn-primary input-group-text" type="submit"> <i class="fa fa-search me-2"></i> SEARCH</button>

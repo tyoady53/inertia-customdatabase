@@ -1,6 +1,6 @@
 <template>
     <Head>
-        <title>Add New Users - Master Form</title>
+        <title>Add New Data - {{ table_name }}</title>
     </Head>
     <main class="c-main">
         <div class="container-fluid">
@@ -14,8 +14,8 @@
                             <div class="card-body">
                                 <form action="/apps/forms/new_data" method="post">
                                         <input class="form-control" :value="table" type="hidden" name="table">
-                                        <!-- <input type="text" :value="csrfToken" name="_token"/> -->
-                                        <div v-for="header in headers"> 
+                                        <input type="text" name="_token" :value="csrf">
+                                        <div v-for="header in headers">
                                             <label class="fw-bold">{{ header.field_description  }}</label>
                                             <input class="form-control" :class="{ 'is-invalid': errors.name }" type="text" :name="header.field_name">
 
@@ -55,8 +55,6 @@
 
     import Swal from 'sweetalert2';
 
-    // var csrf_token = $('meta[name="csrf-token"]').attr('content');
-
     export default {
 
         layout: LayoutApp,
@@ -72,14 +70,22 @@
             roles: Array,
             table: Object,
             table_name: Object,
-            headers: Object,
+            headers: Array,
             create_data: Object,
             edit_data: Object,
             delete_data: Object,
             forms:Object,
         },
 
-        
+        data() {
+            return {
+                csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        },
+
+        mounted() {
+            this.csrf = window.laravel.csrfToken
+        },
 
         setup() {
             const form = reactive({

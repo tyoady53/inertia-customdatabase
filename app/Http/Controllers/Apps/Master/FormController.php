@@ -62,7 +62,6 @@ class FormController extends Controller
         $select_field = '';$form = ''; $relate = ''; $result = '';$table_to_check = [];$parent = [];$child = [];
         $select = DB::table('master_tables')->where('name',$name)->first();
         $table_name = $select->description;
-        $description = $name.'_description';
         $title  = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
         $relation = DB::table('master_relation')->where('table_name_from',$name)->get();
         $header = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
@@ -106,9 +105,6 @@ class FormController extends Controller
         $result = '';
         if($relation->count() > 0){
             foreach ($relation as $rel){
-                $relate_desc = $rel->table_name_to.'_description';
-                $table_to = DB::table('master_tables')->where('name',$rel->table_name_to)->first();
-                $refer_to = DB::table('master_table_structures')->where('table_id',$table_to->id)->where('field_name',$rel->refer_to)->first();
                 $table_name_to[] = array(
                     "table_name_to" => $rel->table_name_to,
                     "refer_to"      => $rel->refer_to
@@ -164,7 +160,6 @@ class FormController extends Controller
         $select_field = '';$form = ''; $relate = ''; $result = '';$table_to_check = [];$parent = [];$child = [];
         $select = DB::table('master_tables')->where('name',$name)->first();
         $table_name = $select->description;
-        $description = $name.'_description';
         $title  = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
         $relation = DB::table('master_relation')->where('table_name_from',$name)->get();
         $header = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
@@ -208,9 +203,6 @@ class FormController extends Controller
         $result = '';
         if($relation->count() > 0){
             foreach ($relation as $rel){
-                $relate_desc = $rel->table_name_to.'_description';
-                $table_to = DB::table('master_tables')->where('name',$rel->table_name_to)->first();
-                $refer_to = DB::table('master_table_structures')->where('table_id',$table_to->id)->where('field_name',$rel->refer_to)->first();
                 $table_name_to[] = array(
                     "table_name_to" => $rel->table_name_to,
                     "refer_to"      => $rel->refer_to
@@ -222,6 +214,8 @@ class FormController extends Controller
         }
         $field  = DB::table('master_datatype')->get();
         $show_table  = DB::table('master_tables')->where('is_show',1)->where('group',$select->group)->get();
+        $token = $request->bearerToken();
+        // dd($token);
         if(str_contains($a, $name)){
             return Inertia::render('Apps/Forms/Add_Data', [
                 'group'         => DB::table('master_tablegroup')->get(),
@@ -306,16 +300,14 @@ class FormController extends Controller
 
         return redirect()->route('forms.index');
     }
-    
-    public function create_data(Request $request){
-        $table			= $request->table;
-        dd($table);
-        $select = DB::table('master_tables')->where('name',$request->table)->first();
-        $table_head  = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
 
-        $now = Carbon::now()->toDateTimeString();
-        $auth = auth()->user()->id;
-		//$table_head		= DB::table($table_desc)->where('is_show',1)->get();
+    public function create_data(Request $request){
+        $table          = $request->table;
+        $select         = DB::table('master_tables')->where('name',$request->table)->first();
+        $table_head     = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
+
+        $now            = Carbon::now()->toDateTimeString();
+        $auth           = auth()->user()->id;
 		$select_field	= 'created_at,updated_at,created_by,updated_by,status,';
 		$values	        = '"'.$now.'","'.$now.'",'.$auth.','.$auth.',"1",';
 
@@ -326,7 +318,6 @@ class FormController extends Controller
                 $file= $request->file($fields)->store($table.'-'.$fields);
                 $values .= "'".$file."',";
             } else if($t->input_type == 'Checklist'){
-                //ddd($request->get($request->$fields));
                 if($request->$fields == ''){
                     $values .= "NULL,";
                 } else {
@@ -340,7 +331,6 @@ class FormController extends Controller
         $selected = substr($select_field, 0,-1);
         $insert_value = substr($values, 0,-1);
 
-        //dd($insert_value);
 		$insert = DB::statement("INSERT INTO $table ($selected) VALUES ($insert_value);");
 		if($insert){
 			return redirect()->route('forms.index');

@@ -1,6 +1,6 @@
 <template>
     <Head>
-        <title>Form</title>
+        <title>Form {{ table_name }}</title>
     </Head>
     <main class="c-main">
         <div class="container-fluid">

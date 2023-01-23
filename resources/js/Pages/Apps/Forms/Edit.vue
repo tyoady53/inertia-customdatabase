@@ -9,7 +9,7 @@
                     <div class="col-md-12">
                         <div class="card border-0 rounded-3 shadow border-top-purple">
                             <div class="card-header">
-                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> EDIT ROLE</span>
+                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> EDIT FORM</span>
                             </div>
                             <div class="card-body">
 

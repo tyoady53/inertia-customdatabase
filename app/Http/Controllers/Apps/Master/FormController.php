@@ -48,15 +48,26 @@ class FormController extends Controller
 
     public function show(Request $request, $name)
     {
+        $request_name = request()->segment(count(request()->segments()));
+        $a = '';
         if(auth()){
             $user_id = auth()->user()->id;
         }
-        $a = '';
         $user = User::where('id',$user_id)->first();
         $permissions = $user->getPermissionsViaRoles();
-        for ($j = 0; $j < $permissions->count(); $j++){
-            if(str_contains($permissions[$j]['name'], 'index')){
-                $a .= $permissions[$j]['name'].', ';
+        if($request_name == 'manage'){
+            $role_request = 'manage';
+            // $a .= 'form.manage';
+        } else {
+            if($request_name == 'add_data'){
+                $role_request = 'create';
+            } else {
+                $role_request = 'index';
+            }
+            for ($j = 0; $j < $permissions->count(); $j++){
+                if(str_contains($permissions[$j]['name'], $role_request)){
+                    $a .= $permissions[$j]['name'].', ';
+                }
             }
         }
         $select_field = '';$form = ''; $relate = ''; $result = '';$table_to_check = [];$parent = [];$child = [];
@@ -101,24 +112,21 @@ class FormController extends Controller
 		} else {
             $form = DB::table($name)->latest()->get();
         }
-        $table_name_to = array();
-        $result = '';
+        // $table_name_to = array();
+        $result = array();
         if($relation->count() > 0){
             foreach ($relation as $rel){
-                $table_name_to[] = array(
-                    "table_name_to" => $rel->table_name_to,
-                    "refer_to"      => $rel->refer_to
-                );
-                $result = [$rel->field_from => DB::table($rel->table_name_to)->get()];
+                    $result[] = [$rel->field_from => DB::table($rel->table_name_to)->get(),"field_from" => $rel->field_from];
             }$relate = 'yes';
         } else {
             $relate = 'no';
         }
+        // dd($name);
         $field  = DB::table('master_datatype')->get();
         $show_table  = DB::table('master_tables')->where('is_show',1)->where('group',$select->group)->get();
-
-        if(str_contains($a, $name)){
-            return Inertia::render('Apps/Forms/Show', [
+        // dd($request_name);
+        if($role_request == 'manage'){
+            return Inertia::render('Apps/Forms/Manage/Manage', [
                 'group'         => DB::table('master_tablegroup')->get(),
                 'table'         => $name,
                 'create_data'   => 'form-'.$name.'.create',
@@ -137,10 +145,56 @@ class FormController extends Controller
                 'related'       => $result,
                 'relate'        => $relate,
             ]);
+        }else {
+            if(str_contains($a, $name)){
+                switch($request_name){
+                    case 'show':
+                        return Inertia::render('Apps/Forms/Show', [
+                            'group'         => DB::table('master_tablegroup')->get(),
+                            'table'         => $name,
+                            'create_data'   => 'form-'.$name.'.create',
+                            'edit_data'     => 'form-'.$name.'.edit',
+                            'delete_data'   => 'form-'.$name.'.delete',
+                            'table_name'    => $table_name,
+                            'title'         => $title,
+                            'fields'        => $field,
+                            'headers'       => $header,
+                            'forms'         => $form,
+                            'checklist'     => $table_to_check,
+                            'child'         => $child,
+                            'parent'        => $parent,
+                            'show_table'    => $show_table,
+                            'relation'      => $relation,
+                            'related'       => $result,
+                            'relate'        => $relate,
+                        ]);
+                        break;
+                    case 'add_data' :
+                        return Inertia::render('Apps/Forms/Add_Data', [
+                            'group'         => DB::table('master_tablegroup')->get(),
+                            'table'         => $name,
+                            'create_data'   => 'form-'.$name.'.create',
+                            'edit_data'     => 'form-'.$name.'.edit',
+                            'delete_data'   => 'form-'.$name.'.delete',
+                            'table_name'    => $table_name,
+                            'title'         => $title,
+                            'fields'        => $field,
+                            'headers'       => $header,
+                            'forms'         => $form,
+                            'checklist'     => $table_to_check,
+                            'child'         => $child,
+                            'parent'        => $parent,
+                            'show_table'    => $show_table,
+                            'relation'      => $relation,
+                            'related'       => $result,
+                            'relate'        => $relate,
+                        ]);
+                        break;
+                }
+            }
+            return Inertia::render('Apps/Forbidden', [
+            ]);
         }
-
-        return Inertia::render('Apps/Forbidden', [
-        ]);
 
     }
 
@@ -199,23 +253,18 @@ class FormController extends Controller
 		} else {
             $form = DB::table($name)->latest()->get();
         }
-        $table_name_to = array();
-        $result = '';
+        // $table_name_to = array();
+        $result = array();
         if($relation->count() > 0){
             foreach ($relation as $rel){
-                $table_name_to[] = array(
-                    "table_name_to" => $rel->table_name_to,
-                    "refer_to"      => $rel->refer_to
-                );
-                $result = [$rel->field_from => DB::table($rel->table_name_to)->get()];
+                    $result[] = [$rel->field_from => DB::table($rel->table_name_to)->get(),"field_from" => $rel->field_from];
             }$relate = 'yes';
         } else {
             $relate = 'no';
         }
+        // dd($result);
         $field  = DB::table('master_datatype')->get();
         $show_table  = DB::table('master_tables')->where('is_show',1)->where('group',$select->group)->get();
-        $token = $request->bearerToken();
-        // dd($token);
         if(str_contains($a, $name)){
             return Inertia::render('Apps/Forms/Add_Data', [
                 'group'         => DB::table('master_tablegroup')->get(),
@@ -248,9 +297,6 @@ class FormController extends Controller
         }
         $a = '';
         $user = User::where('id',$user_id)->first();
-        // $sides = Role::where('name', $user->getRoleNames())->when(request()->q, function($sides) {
-        //     $sides = $sides->where('name', 'like', '%index%');
-        // })->with('permissions') ->latest()->get();
         $permissions = $user->getPermissionsViaRoles();
         for ($j = 0; $j < $permissions->count(); $j++){
             if(str_contains($permissions[$j]['name'], 'create')){
@@ -333,7 +379,7 @@ class FormController extends Controller
 
 		$insert = DB::statement("INSERT INTO $table ($selected) VALUES ($insert_value);");
 		if($insert){
-			return redirect()->route('forms.index');
+			return redirect()->route('forms.show',$table);
 		}
     }
 }

@@ -1,6 +1,6 @@
 <template>
     <Head>
-        <title>Add New Data - {{ table_name }}</title>
+        <title>MANAGE - Form {{ table_name }}</title>
     </Head>
     <main class="c-main">
         <div class="container-fluid">
@@ -9,34 +9,18 @@
                     <div class="col-md-12">
                         <div class="card border-0 rounded-3 shadow border-top-purple">
                             <div class="card-header">
-                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> ADD DATA FORM : {{ table_name }}</span>
+                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> MANAGE : {{ table_name }}</span>
                             </div>
                             <div class="card-body">
                                 <form action="/apps/forms/new_data" method="post">
                                         <input class="form-control" :value="table" type="hidden" name="table">
                                         <input type="hidden" name="_token" :value="csrf">
                                         <div v-for="header in headers">
-                                            <div v-if="relate == 'yes'">
-                                                <div v-for="rel_data in relation">
-                                                    <div v-if="rel_data.field_from == header.field_name">
-                                                        <div v-for="rel in related">
-                                                            <div v-if="rel.field_from == header.field_name">
-                                                                <label class="fw-bold">{{ header.field_description  }}</label>
-                                                                <select class="form-control" :name="header.field_name">
-                                                                    <option v-for="option in rel[header.field_name]" :value="option[header.field_name]">{{option[rel_data.refer_to]}}</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div v-else>
-                                                <label class="fw-bold">{{ header.field_description  }}</label>
-                                                <input class="form-control" :class="{ 'is-invalid': errors.name }" type="text" :name="header.field_name">
+                                            <label class="fw-bold">{{ header.field_description  }}</label>
+                                            <input class="form-control" :class="{ 'is-invalid': errors.name }" type="text" :name="header.field_name">
 
-                                                <div v-if="errors.name" class="alert alert-danger">
-                                                    {{ errors.name }}
-                                                </div>
+                                            <div v-if="errors.name" class="alert alert-danger">
+                                                {{ errors.name }}
                                             </div>
                                         </div>
                                     <hr>
@@ -50,6 +34,7 @@
                                         </div>
                                     </div>
                                 </form>
+
                             </div>
                         </div>
                     </div>
@@ -60,7 +45,7 @@
 </template>
 
 <script>
-    import LayoutApp from '../../../Layouts/App.vue';
+    import LayoutApp from '../../../../Layouts/App.vue';
 
     import { Head, Link } from '@inertiajs/inertia-vue3';
 
@@ -89,9 +74,6 @@
             create_data: String,
             edit_data: String,
             delete_data: String,
-            relation: Array,
-            related: Array,
-            relate: String,
             forms:Object,
         },
 

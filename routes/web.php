@@ -47,9 +47,11 @@ Route::prefix('apps')->group(function() {
 
             Route::get('{form:slug}/edit', [FormController::class, 'edit'])->name('forms.edit');
 
-            Route::get('{form:slug}/add_data', [FormController::class, 'add_data']);
+            Route::get('{form:slug}/add_data', [FormController::class, 'show']);
 
-            Route::get('{form:slug}/show', [FormController::class, 'show']);
+            Route::get('{form:slug}/show', [FormController::class, 'show'])->name('forms.show');
+
+            Route::get('{form:slug}/manage', [FormController::class, 'show'])->name('forms.manage');
 
             Route::get('{form:slug}/get_relation', [FormController::class, 'get_relation'])->name('forms.get_relation');
 
@@ -67,7 +69,7 @@ Route::prefix('apps')->group(function() {
 
             Route::post('update', [FormController::class, 'update'])->name('forms.update');
 
-            Route::post('manage', [FormController::class, 'manage'])->name('forms.manage');
+            Route::post('manage', [FormController::class, 'manage']);
 
             Route::post('delete', [FormController::class, 'delete'])->name('forms.delete');
 

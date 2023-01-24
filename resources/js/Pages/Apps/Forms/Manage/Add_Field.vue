@@ -16,27 +16,11 @@
                                         <input class="form-control" :value="table" type="hidden" name="table">
                                         <input type="hidden" name="_token" :value="csrf">
                                         <div v-for="header in headers">
-                                            <div v-if="relate == 'yes'">
-                                                <div v-for="rel_data in relation">
-                                                    <div v-if="rel_data.field_from == header.field_name">
-                                                        <div v-for="rel in related">
-                                                            <div v-if="rel.field_from == header.field_name">
-                                                                <label class="fw-bold">{{ header.field_description  }}</label>
-                                                                <select class="form-control" :name="header.field_name">
-                                                                    <option v-for="option in rel[header.field_name]" :value="option[header.field_name]">{{option[rel_data.refer_to]}}</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div v-else>
-                                                <label class="fw-bold">{{ header.field_description  }}</label>
-                                                <input class="form-control" :class="{ 'is-invalid': errors.name }" type="text" :name="header.field_name">
+                                            <label class="fw-bold">{{ header.field_description  }}</label>
+                                            <input class="form-control" :class="{ 'is-invalid': errors.name }" type="text" :name="header.field_name">
 
-                                                <div v-if="errors.name" class="alert alert-danger">
-                                                    {{ errors.name }}
-                                                </div>
+                                            <div v-if="errors.name" class="alert alert-danger">
+                                                {{ errors.name }}
                                             </div>
                                         </div>
                                     <hr>
@@ -50,6 +34,7 @@
                                         </div>
                                     </div>
                                 </form>
+
                             </div>
                         </div>
                     </div>
@@ -89,9 +74,6 @@
             create_data: String,
             edit_data: String,
             delete_data: String,
-            relation: Array,
-            related: Array,
-            relate: String,
             forms:Object,
         },
 

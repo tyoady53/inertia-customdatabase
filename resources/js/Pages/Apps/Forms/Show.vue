@@ -18,6 +18,9 @@
 
                                     <button class="btn btn-primary input-group-text" type="submit"> <i class="fa fa-search me-2"></i> SEARCH</button>
                                 </div>
+                                <div class="input-group mb-3" v-if="hasAnyPermission(['form.create'])">
+                                    <Link :href="`/apps/forms/${table}/manage`" class="btn btn-primary input-group-text"> <i class="fa fa-edit me-2"></i> Manage Form</Link>
+                                </div>
                             </form>
                             <table class="table table-striped table-bordered table-hover">
                                 <thead>
@@ -61,12 +64,12 @@
         },
 
         props: {
-            table: Object,
-            table_name: Object,
+            table: String,
+            table_name: String,
             headers: Object,
-            create_data: Object,
-            edit_data: Object,
-            delete_data: Object,
+            create_data: String,
+            edit_data: String,
+            delete_data: String,
             forms:Object,
         },
 

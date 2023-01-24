@@ -18,6 +18,11 @@ class PermissionsTableSeeder extends Seeder
         //permission dashboard
         Permission::create(['name' => 'dashboard.index', 'guard_name' => 'web']);
 
+        // ----- NEW ----- Form Permissions
+        Permission::create(['name' => 'form.create', 'guard_name' => 'web']);
+        Permission::create(['name' => 'form.manage', 'guard_name' => 'web']);
+        Permission::create(['name' => 'form.relation', 'guard_name' => 'web']);
+
         //permission users
         Permission::create(['name' => 'users.index', 'guard_name' => 'web']);
         Permission::create(['name' => 'users.create', 'guard_name' => 'web']);
@@ -32,6 +37,5 @@ class PermissionsTableSeeder extends Seeder
 
         //permission permissions
         Permission::create(['name' => 'permissions.index', 'guard_name' => 'web']);
-        Permission::create(['name' => 'form.create', 'guard_name' => 'web']);
     }
 }

@@ -382,4 +382,77 @@ class FormController extends Controller
 			return redirect()->route('forms.show',$table);
 		}
     }
+
+    public function new_field(Request $request)
+    {
+        if($request->data_type == 'Checklist'){
+            $relate_to = $request->table_to.'#'.$request->field_to;
+        } else { $relate_to = ''; }
+        $field_name = str_replace(' ', '',strtolower($request->name));
+        $table_name = $request->table;
+        $data_type      = DB::table('master_datatype')->where('name',$request->data_type)->first();
+        $table_selected = DB::table('master_tables')->where('name',$table_name)->first();
+
+        $structure = new master_table_structure;
+        $structure->table_id            = $table_selected->id;
+        $structure->field_name          = $field_name;
+        $structure->field_description   = $request->name;
+        $structure->is_show             = '1';
+        $structure->data_type           = $data_type->data_type;
+        $structure->field_name          = $field_name;
+        $structure->relation            = '0';
+        $structure->input_type          = $request->data_type;
+        $structure->relate_to           = $relate_to;
+        $structure->created_by          = auth()->user()->id;
+        $structure->save();
+
+
+        $query = "ALTER TABLE `$table_name` ADD `$field_name` $data_type->data_type";
+        //dd($query);
+		//DB::insert("INSERT INTO $description (field_name,field_description,is_show,data_type,relation,input_type,relate_to) VALUES ('$field_name','$request->name','1','$data_type->data_type','0','$request->data_type','$relate_to')");
+
+        DB::statement($query);
+
+        return back()->with('success', 'Column Was Created');
+    }
+
+    public function update_data(Request $request)
+    {
+		$table			= $request->table;
+		$edit_id		= $request->data_id;
+        $select = DB::table('master_tables')->where('name',$request->table)->first();
+        $table_head  = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
+		// $table_desc		= $table."_description";
+		// $table_head		= DB::select(DB::raw("SELECT * FROM ".$table_desc." where is_show = '1';"));
+		$select_field	= '';
+		$values	        = '';
+		if (count($table_head) > 0){
+			foreach ($table_head as $t){
+                $fields = $t->field_name;
+				//$select_field .= $t->field_name."='".$request->$fields."',";
+				if($t->input_type == 'File'){
+                    if($request->file($fields)){
+                        $file= $request->file($fields)->store($table.'-'.$fields);
+                        $values .= $t->field_name."='".$file."',";
+                    }
+                } else if($t->input_type == 'Checklist'){
+                    //ddd($request->get($request->$fields));
+                    if($request->$fields == ''){
+                        $values .= $t->field_name."=NULL,";
+                    } else {
+                        $vehicleString = implode(",", $request->$fields);
+                        $values .= $t->field_name."='".$vehicleString."',";
+                    }
+                } else {
+                    $values .= $t->field_name."= '".$request->$fields."',";
+                }
+			}
+			$selected = substr($values, 0,-1);
+		}
+		$insert = DB::statement("UPDATE $table SET $selected WHERE id='$edit_id';");
+		//var_dump($insert);
+		if($insert){
+			return back()->with('success', 'Data Edited');
+		}
+    }
 }

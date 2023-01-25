@@ -43,6 +43,8 @@ Route::prefix('apps')->group(function() {
 
             Route::post('new_form', [FormController::class, 'create'])->name('forms.new_form');
 
+            Route::post('new_field', [FormController::class, 'new_field']);
+
             Route::post('new_data', [FormController::class, 'create_data']);
 
             Route::get('{form:slug}/edit', [FormController::class, 'edit'])->name('forms.edit');

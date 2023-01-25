@@ -8433,7 +8433,7 @@ html:not([dir="rtl"]) .list-group-accent .list-group-item.list-group-item-divide
   flex: 1;
 }
 
-.modal-open {
+/* .modal-open {
   overflow: hidden;
 }
 
@@ -8443,6 +8443,7 @@ html:not([dir="rtl"]) .list-group-accent .list-group-item.list-group-item-divide
 }
 
 .modal {
+  position: absolute;
   position: fixed;
   top: 0;
   left: 0;
@@ -8467,7 +8468,7 @@ html:not([dir="rtl"]) .list-group-accent .list-group-item.list-group-item-divide
   transition: transform 0.3s ease-out, -webkit-transform 0.3s ease-out;
   -webkit-transform: translate(0, -50px);
   transform: translate(0, -50px);
-}
+} */
 
 @media (prefers-reduced-motion: reduce) {
   .modal.fade .modal-dialog {

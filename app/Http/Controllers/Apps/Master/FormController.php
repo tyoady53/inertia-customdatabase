@@ -455,4 +455,14 @@ class FormController extends Controller
 			return back()->with('success', 'Data Edited');
 		}
     }
+
+    public function delete_data(Request $request){
+		$id			 	= $request->id;
+		$table			= $request->table_name;
+		// $table_head		= DB::statement("DELETE FROM $table WHERE id='$id';");
+		$table_head		= DB::statement("UPDATE $table SET status='0' WHERE id='$id';");
+        if($table_head){
+            return back()->with('success', 'Data Edited');
+        }
+	}
 }

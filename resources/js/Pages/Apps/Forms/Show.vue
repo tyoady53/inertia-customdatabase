@@ -13,7 +13,8 @@
                         <div class="card-body">
                             <form>
                                 <div class="input-group mb-3" v-if="hasAnyPermission([create_data])">
-                                    <Link :href="`/apps/forms/${table}/add_data`" class="btn btn-primary input-group-text"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
+                                    <!-- /apps/forms/${table}/add_data -->
+                                    <Link href="#" class="btn btn-primary input-group-text" data-bs-toggle="modal" data-bs-target="#add_dataModal"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
                                     <input type="text" class="form-control" placeholder="search by role name . . .">
 
                                     <button class="btn btn-primary input-group-text" type="submit"> <i class="fa fa-search me-2"></i> SEARCH</button>
@@ -30,8 +31,8 @@
                                     <tr v-for="form in forms">
                                         <td v-for="header in headers"> {{ form[header.field_name]  }}</td>
                                             <td class="text-center"  v-if="hasAnyPermission([edit_data]) || hasAnyPermission([delete_data])">
-                                                <Link :href="`/apps/roles/${table}/edit`" v-if="hasAnyPermission([edit_data])" class="btn btn-success btn-sm me-2"><i class="fa fa-pencil-alt me-1"></i> EDIT</Link>
-                                                <button @click.prevent="destroy(form.id)" v-if="hasAnyPermission([delete_data])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
+                                                <button v-if="hasAnyPermission([edit_data])" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" @click="sendInfo(form)"> <i class="fa fa-pencil-alt me-1"></i> Edit Data</button>
+                                                <button @click.prevent="destroy(form.id,table)" v-if="hasAnyPermission([delete_data])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -41,6 +42,154 @@
                 </div>
             </div>
         </div>
+
+        <!-- The Modal Add Data [NEW]-->
+        <div class="modal" id="add_dataModal" ref="add_dataModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Data : {{ table_name }}</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form action="/apps/forms/new_data" method="POST">
+                            <input type="hidden" name="_token" :value="csrfToken">
+                            <input class="form-control" name="table" :value="table" type="hidden">
+                            <input class="form-control" name="data_id" :value="selectedUser.id" type="hidden">
+                            <div class="mb-3" v-for="header in headers" :key="header">
+                                <div v-if="relate == 'yes'">
+                                    <div v-if="header.relation == '1'">
+                                        <div v-for="rel_data in relation">
+                                            <div v-if="rel_data.field_from == header.field_name">
+                                                <div v-for="rel in related">
+                                                    <div v-if="rel.field_from == header.field_name">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <select class="form-control" :name="header.field_name">
+                                                            <option v-for="option in rel[header.field_name]" :value="option[header.field_name]">{{option[rel_data.refer_to]}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                        <div v-if="header.input_type === 'Text'">
+                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
+                                        </div>
+                                        <div v-else-if="header.input_type === 'Number'">
+                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
+                                        </div>
+                                        <div v-else-if="header.input_type === 'Longtext'">
+                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else>
+                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                    <div v-if="header.input_type === 'Text'">
+                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
+                                    </div>
+                                    <div v-else-if="header.input_type === 'Number'">
+                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
+                                    </div>
+                                    <div v-else-if="header.input_type === 'Longtext'">
+                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                    </div>
+                                </div>
+                                <!-- <input class="form-control" :name="header.field_name" type="text" :placeholder="header.field_description"> -->
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary shadow-sm rounded-sm" type="submit">Save</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                </div>
+            </div>
+        </div>
+        <!-- End of Modal Add Data -->
+    
+        <!-- The Modal Edit Data -->
+        <div class="modal" id="editModal" ref="editModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Update Data : {{ table_name }}</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form action="/apps/forms/update_data" method="POST">
+                            <input type="hidden" name="_token" :value="csrfToken">
+                            <input class="form-control" name="table" :value="table" type="hidden">
+                            <input class="form-control" name="data_id" :value="selectedUser.id" type="hidden">
+                            <div class="mb-3" v-for="header in headers" :key="header">
+                                <div v-if="relate == 'yes'">
+                                    <div v-if="header.relation == '1'">
+                                        <div v-for="rel_data in relation">
+                                            <div v-if="rel_data.field_from == header.field_name">
+                                                <div v-for="rel in related">
+                                                    <div v-if="rel.field_from == header.field_name">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <select class="form-control" :name="header.field_name">
+                                                            <option v-for="option in rel[header.field_name]" :value="option[header.field_name]">{{option[rel_data.refer_to]}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else>
+                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                        <div v-if="header.input_type === 'Text'">
+                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
+                                        </div>
+                                        <div v-else-if="header.input_type === 'Number'">
+                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
+                                        </div>
+                                        <div v-else-if="header.input_type === 'Longtext'">
+                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else>
+                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                    <div v-if="header.input_type === 'Text'">
+                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
+                                    </div>
+                                    <div v-else-if="header.input_type === 'Number'">
+                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
+                                    </div>
+                                    <div v-else-if="header.input_type === 'Longtext'">
+                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div class="mb-3" v-for="header in headers" :key="header">
+                                <label class="fw-bold">{{ header.field_name }}</label>
+                                <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
+                            </div> -->
+                            <div class="modal-footer">
+                                <button class="btn btn-primary shadow-sm rounded-sm" type="submit">Update</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                </div>
+            </div>
+        </div>
+        <!-- End of Modal Edit Data -->
+
     </main>
 </template>
 
@@ -65,20 +214,35 @@
 
         props: {
             table: String,
+            roles: Array,
             table_name: String,
             headers: Object,
             create_data: String,
             edit_data: String,
             delete_data: String,
+            relation: Array,
+            related: Array,
+            relate: String,
             forms:Object,
+            csrfToken: String,
+        },
+
+        data: () => ({
+            selectedUser: '',
+        }),
+
+        methods: {
+            sendInfo(form) {
+                this.selectedUser = form;
+            }
         },
 
         setup() {
 
-        const destroy = (id) => {
+        const destroy = (id,table) => {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                text: "Delete data from table "+table,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -88,7 +252,7 @@
             .then((result) => {
                 if (result.isConfirmed) {
 
-                    // Inertia.delete(`/apps/roles/${id}`);
+                    Inertia.delete(`/apps/forms/${table}/delete_data/${id}`);
 
                     Swal.fire({
                         title: 'Deleted!',

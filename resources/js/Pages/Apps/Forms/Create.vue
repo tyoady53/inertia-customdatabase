@@ -27,8 +27,24 @@
                                         <label class="fw-bold">Role</label>
                                         <br>
                                         <div class="form-check form-check-inline" v-for="(role, index) in roles" :key="index">
-                                            <input class="form-check-input" type="checkbox" v-model="form.roles" :value="role.name" :id="`check-${role.id}`">
+                                            <input class="form-check-input" type="checkbox" v-model="form.roles" :value="role.name" :id="`check-${role.id}`" @change="check(role)">
                                             <label class="form-check-label" :for="`check-${role.id}`">{{ role.name }}</label>
+                                        </div>
+<br>
+                                        <div class="form-check form-check-inline" v-for="(role, index) in roles" :key="index">
+                                            <div v-show="role.name">
+                                                <label class="fw-bold" :name="role.name">Add Other Permission For {{ role.name }}</label>
+                                                <br>
+                                                <input class="form-check-input" type="checkbox" :value="`create-${role.name}`" :id="`create-${role.name}`">
+                                                <label class="form-check-label" :for="`create-${role.name}`">Create</label>
+                                                <br>
+                                                <input class="form-check-input" type="checkbox" :value="`edit-${role.name}`" :id="`edit-${role.name}`">
+                                                <label class="form-check-label" :for="`edit-${role.name}`">Edit</label>
+                                                <br>
+                                                <input class="form-check-input" type="checkbox" :value="`delete-${role.name}`" :id="`delete-${role.name}`">
+                                                <label class="form-check-label" :for="`delete-${role.name}`">Delete</label>
+                                                <!-- <input class="form-check-input" type="checkbox" v-model="form.roles" :value="`create-${role.name}`" :id="`create-${role.name}`"> -->
+                                            </div>
                                         </div>
 
                                         <div class="row mt-3">
@@ -39,7 +55,6 @@
                                         </div>
                                     </div>
                                 </form>
-
                             </div>
                         </div>
                     </div>
@@ -55,6 +70,8 @@
     import { Head, Link } from '@inertiajs/inertia-vue3';
 
     import { reactive } from 'vue';
+
+    import { ref } from 'vue';
 
     import { Inertia } from '@inertiajs/inertia';
 
@@ -72,6 +89,16 @@
         props: {
             errors: Object,
             roles: Array
+        },
+
+        data: () => ({
+            roles_list: '',
+        }),
+
+        methods: {
+            check(role) {
+                this.roles_list = role;
+            }
         },
 
         setup() {
@@ -97,6 +124,12 @@
                     },
                 });
             }
+
+            let roles_list = this.roles;
+            for (let role_ of roles_list) {
+                this.role_ = ref(false);
+            };
+
             return {
                 form,
                 submit,

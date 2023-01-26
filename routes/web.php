@@ -45,7 +45,11 @@ Route::prefix('apps')->group(function() {
 
             Route::post('new_field', [FormController::class, 'new_field']);
 
+            Route::post('add_relation', [FormController::class, 'set_relation'])->name('forms.add_relation');
+
             Route::post('new_data', [FormController::class, 'create_data']);
+
+            Route::delete('{form:slug}/delete_data/{id}', [FormController::class, 'delete_data']);
 
             Route::get('{form:slug}/edit', [FormController::class, 'edit'])->name('forms.edit');
 
@@ -69,6 +73,8 @@ Route::prefix('apps')->group(function() {
 
             // Route::post('add_record', [FormController::class, 'add_record'])->name('forms.add_record');
 
+            Route::post('update_data', [FormController::class, 'update_data'])->name('forms.update_data');
+
             Route::post('update', [FormController::class, 'update'])->name('forms.update');
 
             Route::post('manage', [FormController::class, 'manage']);
@@ -76,8 +82,6 @@ Route::prefix('apps')->group(function() {
             Route::post('delete', [FormController::class, 'delete'])->name('forms.delete');
 
             Route::post('remove_relation', [FormController::class, 'remove_relation'])->name('forms.remove_relation');
-
-            Route::post('set_relation', [FormController::class, 'set_relation'])->name('forms.set_relation');
 
             Route::post('set_parent', [FormController::class, 'set_parent'])->name('forms.set_parent');
 

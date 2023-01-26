@@ -9,7 +9,7 @@
                     <div class="col-md-12">
                         <div class="card border-0 rounded-3 shadow border-top-purple">
                             <div class="card-header">
-                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> MANAGE : {{ table_name }}</span>
+                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> MANAGE :: {{ table_name }}</span>
                             </div>
                             <div class="card-body">
                                 <button @click="add_field = true" class="btn btn-primary btn-sm me-2" type="button">Add Field</button>
@@ -18,35 +18,17 @@
                                     <div class="flex items-center justify-between">
                                         <br>
                                         <h3 class="text-2xl">Add Field</h3>
-                                        <!-- <svg
-                                        @click="isOpen = false"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="w-8 h-8 text-red-900 cursor-pointer"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                        </svg> -->
                                     </div>
                                     <div class="mt-4">
                                         <form action="/apps/forms/new_field" method="post">
-                                            <!-- <label class="fw-bold">Add Field</label> -->
                                             <input class="form-control" :value="table" type="hidden" name="table">
-                                            <input type="hidden" name="_token" :value="csrf">
+                                            <input type="hidden" name="_token" :value="csrfToken">
                                             <input class="form-control" type="text" name="name">
                                             <select class="form-control" name="data_type">
                                                 <option v-for="field in fields" :value="field.datatype">{{ field.name }}</option>
                                             </select>
                                             <br>
-                                            <button @click="add_field = false" class="btn btn-danger" >
-                                            Cancel
-                                            </button>&nbsp&nbsp&nbsp&nbsp
+                                            <Link href="#" class="btn btn-danger" >Cancel</Link>&nbsp&nbsp&nbsp&nbsp
                                             <button class="btn btn-success" type="submit">
                                             Save
                                             </button>
@@ -55,7 +37,6 @@
                                     </div>
                                 </div>
                                 <br><br>
-                                <!-- <button @click="modal-add_relation">Add Relation</button> -->
                                 <table class="table table-striped table-bordered table-hover">
                                     <thead>
                                         <th class="text-center">Field Name</th> <th class="text-center"> Relation </th><th class="text-center">Action</th>
@@ -75,7 +56,7 @@
                                                 <!--  -->
                                             </td>
                                             <td class="text-center">
-                                                <Link :href="`/apps/roles/${table}/edit`" class="btn btn-success btn-sm me-2"><i class="fa fa-pencil-alt me-1"></i> EDIT</Link>
+                                                <button v-if="header.relation === '0'" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#relationModal" @click="sendInfo(header)"> <i class="fa fa-pencil-alt me-1"></i> Add Relation</button>
                                                 <button @click.prevent="destroy(form_access.id)" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
                                             </td>
                                         </tr>
@@ -87,6 +68,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- The Modal Edit Data -->
+        <div class="modal" id="relationModal" ref="relationModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Relation : {{ selected_field.field_description }}</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form action="/apps/forms/add_relation" method="POST">
+                            <input type="hidden" name="_token" :value="csrfToken">
+                            <input class="form-control" name="table" :value="table" type="hidden">
+                            <input class="form-control" name="field_from" :value="selected_field.field_name" type="hidden">
+                            <input class="form-control" name="table_structure_id" :value="selected_field.id" type="hidden">
+                            <div class="mb-3">
+                                <select class="form-control" name="relate_table" v-model="selectedChainIds" @change="onChangeChain">
+                                    <option v-for="table in avail_tables" :value="table.id">{{ table.description }}</option>
+                                </select>
+                            </div>
+                            <div  v-if="filteredChain.length">
+                                <h5>Kota</h5>
+                                <select class="form-control" name="refer_to" v-model="selectedSubChainIds">
+                                <option v-for="chain in filteredChain" :value="chain.field_name">{{ chain.field_description }}</option>
+                            </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary shadow-sm rounded-sm" type="submit">Update</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                </div>
+            </div>
+        </div>
+        <!-- End of Modal Edit Data -->
+
     </main>
 </template>
 
@@ -123,20 +146,47 @@
             delete_data: String,
             forms:Object,
             fields:Array,
+            avail_tables: Array,
+            structures: Array,
             relation: Array,
             related: Array,
             relate: String,
+            csrfToken: String,
         },
 
-        data() {
-            return {
-                csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        data: () => ({
+            selected_field: '',
+            selectedChainIds: -1,
+            selectedSubChainIds: -1
+        }),
+
+        methods: {
+            sendInfo(header) {
+                this.selected_field = header;
+            },
+
+            onChangeChain() {
+                this.selectedSubChainIds = -1;
+                if(!this.selectedChainIds) {
+                    this.selectedChainIds = -1;
+                }
+            }
+        },
+
+        computed: {
+            filteredChain() {
+            let filteredsubChains = [];
+            for(let i = 0 ; i < this.structures.length ; i++) {
+                let structures = this.structures[i];
+                if(structures.table_id == this.selectedChainIds) {
+                    filteredsubChains.push(structures);
+                }
+            }
+            return filteredsubChains;
             }
         },
 
         setup() {
-            let add_field = ref(false);
-
             const form = reactive({
                 name: '',
                 roles: [],
@@ -158,7 +208,10 @@
                         });
                     },
                 });
-            }
+            };
+
+            let add_field = ref(false);
+
             return {
                 add_field,
                 form,

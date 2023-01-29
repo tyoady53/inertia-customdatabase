@@ -9,7 +9,7 @@
                     <div class="col-md-12">
                         <div class="card border-0 rounded-3 shadow border-top-purple">
                             <div class="card-header">
-                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> MANAGE :: {{ table_name }}</span>
+                                <span class="font-weight-bold"><i class="fa fa-plus"></i> MANAGE :: {{ table_name }}</span>
                             </div>
                             <div class="card-body">
                                 <button @click="add_field = true" class="btn btn-primary btn-sm me-2" type="button">Add Field</button>
@@ -43,8 +43,12 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="header in headers">
-                                            <td> {{ header.field_description  }}</td>
-                                            <td v-if="header.relation === '0'"> .. </td>
+                                            <td> {{ header.field_description }}</td>
+                                            <td v-if="header.relation === '0'"> 
+                                                <div v-if="header.input_type.split('#')[0] === 'Parent'">Parent</div>
+                                                <div v-else-if="header.input_type.split('#')[0] === 'Child'">Child</div>
+                                                <div v-else>. .</div>
+                                            </td>
                                             <td v-else>
                                                 <div v-for="rel in relation">
                                                     <div v-if="rel.table_name_from == table">
@@ -56,8 +60,19 @@
                                                 <!--  -->
                                             </td>
                                             <td class="text-center">
-                                                <button v-if="header.relation === '0'" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#relationModal" @click="sendInfo(header)"> <i class="fa fa-pencil-alt me-1"></i> Add Relation</button>
-                                                <button @click.prevent="destroy(form_access.id)" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
+                                                <div>
+                                                    <div v-if="header.relation === '0'">
+                                                        <button class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#relationModal" @click="sendInfo(header)"> <i class="fa fa-link   me-1"></i> Add Relation</button>
+                                                        <br>
+                                                        <br>
+                                                    </div>
+                                                    <div v-if="parent_count === '0'">
+                                                        <button class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#parentModal" @click="setParent(header)"> <i class="fas fa-code-branch"></i> Set As Parent</button>
+                                                        <br>
+                                                        <br>
+                                                    </div>
+                                                    <button @click.prevent="destroy(form_access.id)" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -69,7 +84,7 @@
             </div>
         </div>
 
-        <!-- The Modal Edit Data -->
+        <!-- The Modal Add Relation -->
         <div class="modal" id="relationModal" ref="relationModal">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -93,10 +108,10 @@
                                 </select>
                             </div>
                             <div  v-if="filteredChain.length">
-                                <h5>Kota</h5>
+                                <label>Refer To Column:</label>
                                 <select class="form-control" name="refer_to" v-model="selectedSubChainIds">
-                                <option v-for="chain in filteredChain" :value="chain.field_name">{{ chain.field_description }}</option>
-                            </select>
+                                    <option v-for="chain in filteredChain" :value="chain.field_name">{{ chain.field_description }}</option>
+                                </select>
                             </div>
                             <div class="modal-footer">
                                 <button class="btn btn-primary shadow-sm rounded-sm" type="submit">Update</button>
@@ -108,7 +123,62 @@
                 </div>
             </div>
         </div>
-        <!-- End of Modal Edit Data -->
+        <!-- End of Modal Add Relation -->
+
+        <!-- The Modal Parent-Child -->
+        <div class="modal" id="parentModal" ref="parentModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Set {{ as_parent.field_description }} As Parent</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form action="/apps/forms/set_parent" method="POST">
+                            <input type="hidden" name="_token" :value="csrfToken">
+                            <input class="form-control" name="table" :value="table" type="hidden">
+                            <input class="form-control" name="field_name" :value="as_parent.field_name" type="hidden">
+                            <div class="mb-3">
+                                <label>Select Child</label>
+                                <select class="form-control" name="child">
+                                    <option v-for="table in filteredParent" :value="table.field_name">{{ table.field_description }}</option>
+                                </select>
+                            </div>
+                            <br>
+                            <label>Data From</label>
+                            <div class="mb-3">
+                                <select class="form-control" name="data_from_table" v-model="parentChainIds" @change="onChangeParent">
+                                    <option v-for="table in avail_tables" :value="table.id">{{ table.description }}</option>
+                                </select>
+                            </div>
+                            <div  v-if="filteredChild.length">
+                                <div>
+                                    <label>Parent Reference</label>
+                                    <select class="form-control" name="parent_reference" v-model="parentSubChainIds">
+                                        <option v-for="chain in filteredChild" :value="chain.id">{{ chain.field_description }}</option>
+                                    </select>
+                                    <br>
+                                    <label>Child Data</label>
+                                    <select class="form-control" name="child_data" v-model="childSubChainIds">
+                                        <option v-for="chain in filteredChild" :value="chain.id">{{ chain.field_description }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary shadow-sm rounded-sm" type="submit">Update</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                </div>
+            </div>
+        </div>
+        <!-- End of Modal Parent-Child -->
 
     </main>
 </template>
@@ -152,12 +222,19 @@
             related: Array,
             relate: String,
             csrfToken: String,
+            parent_count: String,
         },
 
         data: () => ({
             selected_field: '',
             selectedChainIds: -1,
-            selectedSubChainIds: -1
+            selectedSubChainIds: -1,
+            as_parent:'',
+            child_available: '',
+            parent_available: '',
+            parentChainIds: -1,
+            parentSubChainIds: -1,
+            childSubChainIds: -1,
         }),
 
         methods: {
@@ -165,10 +242,25 @@
                 this.selected_field = header;
             },
 
+            setParent(header) {
+                this.as_parent = header;
+            },
+
             onChangeChain() {
                 this.selectedSubChainIds = -1;
                 if(!this.selectedChainIds) {
                     this.selectedChainIds = -1;
+                }
+            },
+
+            onChangeParent() {
+                this.parentSubChainIds = -1;
+                if(!this.parentChainIds) {
+                    this.parentChainIds = -1;
+                }
+                this.childSubChainIds = -1;
+                if(!this.parentChainIds) {
+                    this.parentChainIds = -1;
                 }
             }
         },
@@ -183,7 +275,31 @@
                 }
             }
             return filteredsubChains;
+            },
+
+            filteredChild() {
+            let filteredChildData = [];
+            for(let i = 0 ; i < this.structures.length ; i++) {
+                let structures = this.structures[i];
+                if(structures.table_id == this.parentChainIds) {
+                    filteredChildData.push(structures);
+                }
             }
+            return filteredChildData;
+            },
+
+            filteredParent() {
+            let filteredParentSelected = [];
+            for(let i = 0 ; i < this.structures.length ; i++) {
+                let structures = this.structures[i];
+                if(structures.table_id == this.as_parent.table_id) {
+                    if(structures.id != this.as_parent.id) {
+                        filteredParentSelected.push(structures);
+                    }
+                }
+            }
+            return filteredParentSelected;
+            },
         },
 
         setup() {

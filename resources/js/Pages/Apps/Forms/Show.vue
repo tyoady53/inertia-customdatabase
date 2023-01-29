@@ -29,10 +29,10 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="form in forms">
-                                        <td v-for="header in headers"> {{ form[header.field_name]  }}</td>
-                                            <td class="text-center"  v-if="hasAnyPermission([edit_data]) || hasAnyPermission([delete_data])">
-                                                <button v-if="hasAnyPermission([edit_data])" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" @click="sendInfo(form)"> <i class="fa fa-pencil-alt me-1"></i> Edit Data</button>
-                                                <button @click.prevent="destroy(form.id,table)" v-if="hasAnyPermission([delete_data])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
+                                        <td v-for="header in headers"> {{ form[header.field_name]  }} </td>
+                                        <td class="text-center"  v-if="hasAnyPermission([edit_data]) || hasAnyPermission([delete_data])">
+                                            <button v-if="hasAnyPermission([edit_data])" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editModal" @click="sendInfo(form)"> <i class="fa fa-pencil-alt me-1"></i> Edit Data</button>
+                                            <button @click.prevent="destroy(form.id,table)" v-if="hasAnyPermission([delete_data])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -77,29 +77,61 @@
                                         </div>
                                     </div>
                                     <div v-else>
-                                        <label class="fw-bold">{{ header.field_description }}</label>
                                         <div v-if="header.input_type === 'Text'">
+                                            <label class="fw-bold">{{ header.field_description }}</label>
                                             <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
                                         </div>
                                         <div v-else-if="header.input_type === 'Number'">
+                                            <label class="fw-bold">{{ header.field_description }}</label>
                                             <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
                                         </div>
-                                        <div v-else-if="header.input_type === 'Longtext'">
-                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                        <div v-else-if="header.input_type.includes('#')">
+                                            <div v-if="header.input_type.split('#')[0] === 'Parent'">
+                                                <label class="fw-bold">{{ header.field_description }}</label>
+                                                <div class="mb-3">
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedChainIds" @change="onChangeChain(header.relate_to.split('#')[1])">
+                                                        <option v-for="parent in parentData" :value="parent[header.relate_to.split('#')[1]]">{{ parent[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div v-else-if="header.input_type.split('#')[0] === 'Child'">
+                                                <div  v-if="filteredChain.length">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedSubChainIds">
+                                                        <option v-for="chain in filteredChain" :value="chain[header.relate_to.split('#')[1]]">{{ chain[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div v-else>
-                                    <label class="fw-bold">{{ header.field_description }}</label>
                                     <div v-if="header.input_type === 'Text'">
+                                        <label class="fw-bold">{{ header.field_description }}</label>
                                         <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
                                     </div>
                                     <div v-else-if="header.input_type === 'Number'">
+                                        <label class="fw-bold">{{ header.field_description }}</label>
                                         <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
                                     </div>
-                                    <div v-else-if="header.input_type === 'Longtext'">
-                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
-                                    </div>
+                                    <div v-else-if="header.input_type.includes('#')">
+                                            <div v-if="header.input_type.split('#')[0] === 'Parent'">
+                                                <label class="fw-bold">{{ header.field_description }}</label>
+                                                <div class="mb-3">
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedChainIds" @change="onChangeChain(header.relate_to.split('#')[1])">
+                                                        <option v-for="parent in parentData" :value="parent[header.relate_to.split('#')[1]]">{{ parent[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div v-else-if="header.input_type.split('#')[0] === 'Child'">
+                                                <div  v-if="filteredChain.length">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedSubChainIds">
+                                                        <option v-for="chain in filteredChain" :value="chain[header.relate_to.split('#')[1]]">{{ chain[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                 </div>
                                 <!-- <input class="form-control" :name="header.field_name" type="text" :placeholder="header.field_description"> -->
                             </div>
@@ -149,29 +181,69 @@
                                         </div>
                                     </div>
                                     <div v-else>
-                                        <label class="fw-bold">{{ header.field_description }}</label>
                                         <div v-if="header.input_type === 'Text'">
+                                            <label class="fw-bold">{{ header.field_description }}</label>
                                             <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
                                         </div>
                                         <div v-else-if="header.input_type === 'Number'">
+                                            <label class="fw-bold">{{ header.field_description }}</label>
                                             <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
                                         </div>
                                         <div v-else-if="header.input_type === 'Longtext'">
+                                            <label class="fw-bold">{{ header.field_description }}</label>
                                             <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                        </div>
+                                        <div v-else-if="header.input_type.includes('#')">
+                                            <div v-if="header.input_type.split('#')[0] === 'Parent'">
+                                                <label class="fw-bold">{{ header.field_description }}</label>
+                                                <div class="mb-3">
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedChainIds" @change="onChangeChain(header.relate_to.split('#')[1])">
+                                                        <option v-for="parent in parentData" :value="parent[header.relate_to.split('#')[1]]">{{ parent[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div v-else-if="header.input_type.split('#')[0] === 'Child'">
+                                                <div  v-if="filteredChain.length">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedSubChainIds">
+                                                        <option v-for="chain in filteredChain" :value="chain[header.relate_to.split('#')[1]]">{{ chain[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div v-else>
-                                    <label class="fw-bold">{{ header.field_description }}</label>
                                     <div v-if="header.input_type === 'Text'">
+                                        <label class="fw-bold">{{ header.field_description }}</label>
                                         <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
                                     </div>
                                     <div v-else-if="header.input_type === 'Number'">
+                                        <label class="fw-bold">{{ header.field_description }}</label>
                                         <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
                                     </div>
                                     <div v-else-if="header.input_type === 'Longtext'">
+                                        <label class="fw-bold">{{ header.field_description }}</label>
                                         <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
                                     </div>
+                                    <div v-else-if="header.input_type.includes('#')">
+                                            <div v-if="header.input_type.split('#')[0] === 'Parent'">
+                                                <label class="fw-bold">{{ header.field_description }}</label>
+                                                <div class="mb-3">
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedChainIds" @change="onChangeChain(header.relate_to.split('#')[1])">
+                                                        <option v-for="parent in parentData" :value="parent[header.relate_to.split('#')[1]]">{{ parent[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div v-else-if="header.input_type.split('#')[0] === 'Child'">
+                                                <div  v-if="filteredChain.length">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <select class="form-control" :name="header.field_name" v-model="selectedSubChainIds">
+                                                        <option v-for="chain in filteredChain" :value="chain[header.relate_to.split('#')[1]]">{{ chain[header.relate_to.split('#')[1]] }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                 </div>
                             </div>
                             <!-- <div class="mb-3" v-for="header in headers" :key="header">
@@ -225,17 +297,44 @@
             relate: String,
             forms:Object,
             csrfToken: String,
+            parentData: Array,
+            child_data: Array,
         },
 
         data: () => ({
             selectedUser: '',
+            parent:'',
+            selectedChainIds: -1,
+            selectedSubChainIds: -1,
         }),
 
         methods: {
+            onChangeChain(reference) {
+                this.selectedSubChainIds = -1;
+                if(!this.selectedChainIds) {
+                    this.selectedChainIds = -1;
+                }
+                parent =reference;
+            },
+
             sendInfo(form) {
                 this.selectedUser = form;
             }
         },
+
+        computed: {
+            filteredChain() {
+            let filteredsubChains = [];
+            for(let i = 0 ; i < this.child_data.length ; i++) {
+                let structures = this.child_data[i];
+                if(structures[parent] == this.selectedChainIds) {
+                    filteredsubChains.push(structures);
+                }
+            }
+            return filteredsubChains;
+            },
+        },
+
 
         setup() {
 

@@ -81,7 +81,6 @@ class FormController extends Controller
         $permissions = $user->getPermissionsViaRoles();
         if($request_name == 'manage'){
             $role_request = 'manage';
-            // $a .= 'form.manage';
         } else {
             if($request_name == 'add_data'){
                 $role_request = 'create';
@@ -136,20 +135,30 @@ class FormController extends Controller
 		} else {
             $form = DB::table($name)->latest()->get();
         }
-        // $table_name_to = array();
         $result = array();
+        $parent_count = 0;
+        $parent_data  = array();
+        $child_data   = array();
+        // dd($relation);
         if($relation->count() > 0){
             foreach ($relation as $rel){
-                    $result[] = [$rel->field_from => DB::table($rel->table_name_to)->get(),"field_from" => $rel->field_from];
+                $result[] = [$rel->field_from => DB::table($rel->table_name_to)->get(),"field_from" => $rel->field_from];
             }$relate = 'yes';
         } else {
             $relate = 'no';
         }
-        // dd($name);
+        foreach ($header as $he){
+            if(str_contains($he->input_type, 'Parent')){
+                $parent_count = +1;
+                // dd(explode('#', $he->relate_to)[0]);
+                $parent_data = DB::table(explode('#', $he->relate_to)[0])->select(explode('#', $he->relate_to)[1])->distinct()->get();
+                $child_data  = DB::table(explode('#', $he->relate_to)[0])->get();
+            }
+        }
+        // dd($parent_count);
         $field  = DB::table('master_datatype')->get();
         $show_table  = DB::table('master_tables')->where('is_show',1)->get();
         $structures  = DB::table('master_table_structures')->where('is_show',1)->get();
-        // dd(csrf_token());
         if($role_request == 'manage'){
             return Inertia::render('Apps/Forms/Manage/Manage', [
                 'group'         => DB::table('master_tablegroup')->get(),
@@ -172,6 +181,9 @@ class FormController extends Controller
                 'relate'        => $relate,
                 'avail_tables'  => DB::table('master_tables')->where('is_show',1)->where('name','<>',$name)->get(),
                 'structures'    => $structures,
+                'parent_data'   => $parent_data,
+                'child_data'    => $child_data,
+                'parent_count'  => $parent_count,
             ]);
         }else {
             if(str_contains($a, $name)){
@@ -196,6 +208,9 @@ class FormController extends Controller
                             'relation'      => $relation,
                             'related'       => $result,
                             'relate'        => $relate,
+                            'parentData'    => $parent_data,
+                            'child_data'    => $child_data,
+                            'parent_count'  => $parent_count,
                         ]);
                         break;
                     case 'add_data' :
@@ -278,6 +293,36 @@ class FormController extends Controller
 		$insert3 = DB::statement("INSERT INTO master_relation (table_name_from,field_from,table_name_to,refer_to,field_from_desc,table_from_desc,table_to_desc,refer_to_desc)
             VALUES ('$table','$field_name','$table_to_desc->name','$relate_to_field','$field_from_desc->field_description','$table_from_desc->description','$table_to_desc->description','$refer_to_desc->field_description');");
 		if($insert1){
+			return redirect()->route('forms.manage',$table);
+		}
+    }
+
+    public function set_parent(Request $request)
+    {
+		$table			    = $request->table;
+		$field_name		    = $request->field_name;
+		$child              = $request->child;
+		$data_from_table    = $request->data_from_table;
+		$parent_reference   = $request->parent_reference;
+		$child_data         = $request->child_data;
+        $child_reference    = master_table_structure::where('id', $child_data)->first();
+        $parent_reference   = master_table_structure::where('id', $parent_reference)->first();
+        $table_data         = DB::table('master_tables')->where('id',$data_from_table)->first();
+        $child_input    = 'Child#'.$field_name;
+        $parent_input   = 'Parent#'.$child;
+        $child_relate   = $table_data->name.'#'.$child_reference->field_name;
+        $parent_relate  = $table_data->name.'#'.$parent_reference->field_name;
+        $child_save = master_table_structure::where('field_name', $child) //update to selected child
+                ->update([
+                    'input_type'    => $child_input,
+                    'relate_to'     => $child_relate
+            ]);
+        $parent = master_table_structure::where('field_name', $field_name) //update to selected parent
+                ->update([
+                    'input_type'    => $parent_input,
+                    'relate_to'     => $parent_relate
+            ]);
+		if($child_save){
 			return redirect()->route('forms.manage',$table);
 		}
     }

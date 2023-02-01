@@ -9,7 +9,7 @@
                     <div class="col-md-12">
                         <div class="card border-0 rounded-3 shadow border-top-purple">
                             <div class="card-header">
-                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> ADD FORM</span>
+                                <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> ADD FORM </span>
                             </div>
                             <div class="card-body">
 
@@ -26,7 +26,29 @@
                                     <div class="mb-3">
                                         <label class="fw-bold">Role</label>
                                         <br>
-                                        <div class="form-check form-check-inline" v-for="(role, index) in roles" :key="index">
+                                        <table class="table table-striped table-bordered table-hover">
+                                            <thead>
+                                                <th class="text-center"> Show Data For </th> <th class="text-center"> Create </th> <th class="text-center"> Edit </th> <th class="text-center"> Delete </th>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(role, index) in roles" :key="index">
+                                                    <td>&nbsp&nbsp
+                                                        <input class="form-check-input" type="checkbox" v-model="form.roles" :value="role.name" :id="`check-${role.id}`" @change="check(role)">
+                                                        <label class="form-check-label" :for="`check-${role.id}`">{{ role.name }}</label> 
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-check-input" type="checkbox" v-model="form.create" :value="`${role.name}.create`" :id="`create-${role.name}`">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-check-input" type="checkbox" v-model="form.edit" :value="`${role.name}.edit`" :id="`edit-${role.name}`">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input class="form-check-input" type="checkbox" v-model="form.delete" :value="`${role.name}.delete`" :id="`delete-${role.name}`">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- <div class="form-check form-check-inline" v-for="(role, index) in roles" :key="index">
                                             <input class="form-check-input" type="checkbox" v-model="form.roles" :value="role.name" :id="`check-${role.id}`" @change="check(role)">
                                             <label class="form-check-label" :for="`check-${role.id}`">{{ role.name }}</label>
                                         </div>
@@ -43,9 +65,8 @@
                                                 <br>
                                                 <input class="form-check-input" type="checkbox" :value="`delete-${role.name}`" :id="`delete-${role.name}`">
                                                 <label class="form-check-label" :for="`delete-${role.name}`">Delete</label>
-                                                <!-- <input class="form-check-input" type="checkbox" v-model="form.roles" :value="`create-${role.name}`" :id="`create-${role.name}`"> -->
                                             </div>
-                                        </div>
+                                        </div> -->
 
                                         <div class="row mt-3">
                                             <div class="col-12">
@@ -104,14 +125,20 @@
         setup() {
             const form = reactive({
                 name: '',
-                roles: []
+                roles: [],
+                create: [],
+                edit: [],
+                delete: []
             });
 
             const submit = () => {
 
                 Inertia.post('/apps/forms/new_form', {
                     name: form.name,
-                    roles: form.roles
+                    roles: form.roles,
+                    create: form.create,
+                    edit: form.edit,
+                    delete: form.delete,
                 }, {
                     onSuccess: () => {
                         Swal.fire({
@@ -125,10 +152,10 @@
                 });
             }
 
-            let roles_list = this.roles;
-            for (let role_ of roles_list) {
-                this.role_ = ref(false);
-            };
+            // let roles_list = this.roles;
+            // for (let role_ of roles_list) {
+            //     this.role_ = ref(false);
+            // };
 
             return {
                 form,

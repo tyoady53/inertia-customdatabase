@@ -16,6 +16,8 @@ use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
+use function PHPUnit\Framework\isNull;
+
 class FormController extends Controller
 {
     public function index()
@@ -68,6 +70,50 @@ class FormController extends Controller
 
         return Inertia::render('Apps/Forbidden', [
         ]);
+    }
+
+    public function create(Request $request){
+        $user_id = auth()->user()->id;
+        $carbon         = Carbon::now();
+        $table_name     = str_replace(array(' ', '-', ',', '.', '/'),'',strtolower($request->name));
+        $index          = 'form-'.$table_name.'.index';
+        $create         = 'form-'.$table_name.'.create';
+        $edit           = 'form-'.$table_name.'.edit';
+        $delete         = 'form-'.$table_name.'.delete';
+        $group_name     = "superadmin";
+        $query          = "CREATE TABLE $table_name (id int(11) NOT NULL AUTO_INCREMENT, created_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, updated_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+         created_by int(11), updated_by int(11), status varchar(1) NOT NULL, PRIMARY KEY (`id`) USING BTREE)";
+
+        DB::statement($query);
+
+        DB::insert("INSERT INTO master_tables (`group`, `name`, `description`,`is_show`,`created_by`,`updated_by`) VALUES ('$group_name','$table_name','$request->name','1','$user_id','$user_id')");
+
+        $input_index    = Permission::create(['name' => $index,   'guard_name' => 'web']);
+        $input_create   = Permission::create(['name' => $create,  'guard_name' => 'web']);
+        $input_edit     = Permission::create(['name' => $edit,    'guard_name' => 'web']);
+        $create_delete  = Permission::create(['name' => $delete,  'guard_name' => 'web']);
+
+        for($i = 0; $i < count($request->roles); $i++){
+            $role_data = Role::where('name',$request->roles[$i])->first();
+            DB::table('role_has_permissions')->insert(['permission_id'=>$input_index->id , 'role_id'=>$role_data->id]);
+            for($c = 0; $c < count($request->create); $c++){
+                if($request->roles[$i] == explode('.', $request->create[$c])[0]){
+                    DB::table('role_has_permissions')->insert(['permission_id'=>$input_create->id , 'role_id'=>$role_data->id]);
+                }
+            }
+            for($e = 0; $e < count($request->edit); $e++){
+                if($request->roles[$i] == explode('.', $request->create[$e])[0]){
+                    DB::table('role_has_permissions')->insert(['permission_id'=>$input_edit->id , 'role_id'=>$role_data->id]);
+                }
+            }
+            for($d = 0; $d < count($request->delete); $d++){
+                if($request->roles[$i] == explode('.', $request->create[$d])[0]){
+                    DB::table('role_has_permissions')->insert(['permission_id'=>$create_delete->id , 'role_id'=>$role_data->id]);
+                }
+            }
+        }
+
+        return redirect()->route('forms.index');
     }
 
     public function show(Request $request, $name)
@@ -136,6 +182,7 @@ class FormController extends Controller
             $form = DB::table($name)->latest()->get();
         }
         $result = array();
+        $checklist_data = array();
         $parent_count = 0;
         $parent_data  = array();
         $child_data   = array();
@@ -154,8 +201,11 @@ class FormController extends Controller
                 $parent_data = DB::table(explode('#', $he->relate_to)[0])->select(explode('#', $he->relate_to)[1])->distinct()->get();
                 $child_data  = DB::table(explode('#', $he->relate_to)[0])->get();
             }
+            if(str_contains($he->input_type, 'Checklist')){
+                $checklist_data[explode('#',$he->relate_to)[0]] = [explode('#',$he->relate_to)[0] => DB::table(explode('#',$he->relate_to)[0])->get(),"field_from" => explode('#',$he->relate_to)[1]];
+            }
         }
-        // dd($parent_count);
+        // dd($checklist_data);
         $field  = DB::table('master_datatype')->get();
         $show_table  = DB::table('master_tables')->where('is_show',1)->get();
         $structures  = DB::table('master_table_structures')->where('is_show',1)->get();
@@ -211,6 +261,7 @@ class FormController extends Controller
                             'parentData'    => $parent_data,
                             'child_data'    => $child_data,
                             'parent_count'  => $parent_count,
+                            'checklist_data'=> $checklist_data,
                         ]);
                         break;
                     case 'add_data' :
@@ -241,37 +292,6 @@ class FormController extends Controller
             ]);
         }
 
-    }
-
-    public function create(Request $request){
-        $user_id = auth()->user()->id;
-        $carbon         = Carbon::now();
-        $table_name     = str_replace(' ','',strtolower($request->name));
-        // dd(count($request->roles));
-        $index          = 'form-'.$table_name.'.index';
-        $create         = 'form-'.$table_name.'.create';
-        $edit           = 'form-'.$table_name.'.edit';
-        $delete         = 'form-'.$table_name.'.delete';
-        // $group_name     = str_replace(' ','',strtolower($request->table_group));
-        $group_name     = "superadmin";
-        $query          = "CREATE TABLE $table_name (id int(11) NOT NULL AUTO_INCREMENT, created_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, updated_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-         created_by int(11), updated_by int(11), status varchar(1) NOT NULL, PRIMARY KEY (`id`) USING BTREE)";
-
-        DB::statement($query);
-
-        DB::insert("INSERT INTO master_tables (`group`, `name`, `description`,`is_show`,`created_by`,`updated_by`) VALUES ('$group_name','$table_name','$request->name','1','$user_id','$user_id')");
-
-        $input_index    = Permission::create(['name' => $index,   'guard_name' => 'web']);
-        $input_create   = Permission::create(['name' => $create,  'guard_name' => 'web']);
-        $input_edit     = Permission::create(['name' => $edit,    'guard_name' => 'web']);
-        $create_delete  = Permission::create(['name' => $delete,  'guard_name' => 'web']);
-
-        for($i = 0; $i < count($request->roles); $i++){
-            $role_data = Role::where('name',$request->roles[$i])->first();
-            DB::table('role_has_permissions')->insert(['permission_id'=>$input_index->id , 'role_id'=>$role_data->id]);
-        }
-
-        return redirect()->route('forms.index');
     }
 
     public function set_relation(Request $request)
@@ -341,8 +361,11 @@ class FormController extends Controller
             $fields = $t->field_name;
             $select_field .= $t->field_name.',';
             if($t->input_type == 'File'){
-                $file= $request->file($fields)->store($table.'-'.$fields);
-                $values .= "'".$file."',";
+                $file= $request->file($fields)->store('public/'.$table.'-'.$fields);
+                // $file= $request->file($fields);
+                // $file->storeAs('public/files', $file->hashName());
+                // dd($file);
+                $values .= "'".str_replace('public/', '',$file)."',";
             } else if($t->input_type == 'Checklist'){
                 if($request->$fields == ''){
                     $values .= "NULL,";
@@ -366,13 +389,15 @@ class FormController extends Controller
     public function new_field(Request $request)
     {
         if($request->data_type == 'Checklist'){
-            $relate_to = $request->table_to.'#'.$request->field_to;
-        } else { $relate_to = ''; }
-        $field_name = str_replace(' ', '',strtolower($request->name));
+            $table = DB::table('master_tables')->where('id',$request->table_to)->first();
+            $relate_to = $table->name.'#'.$request->field_to;
+        } else {
+            $relate_to = '';
+        }
+        $field_name = str_replace(array(' ', '-', ',', '.', '/'), '',strtolower($request->name));
         $table_name = $request->table;
         $data_type      = DB::table('master_datatype')->where('name',$request->data_type)->first();
         $table_selected = DB::table('master_tables')->where('name',$table_name)->first();
-
         $structure = new master_table_structure;
         $structure->table_id            = $table_selected->id;
         $structure->field_name          = $field_name;
@@ -385,7 +410,6 @@ class FormController extends Controller
         $structure->relate_to           = $relate_to;
         $structure->created_by          = auth()->user()->id;
         $structure->save();
-
 
         $query = "ALTER TABLE `$table_name` ADD `$field_name` $data_type->data_type";
 
@@ -407,8 +431,10 @@ class FormController extends Controller
                 $fields = $t->field_name;
 				if($t->input_type == 'File'){
                     if($request->file($fields)){
-                        $file= $request->file($fields)->store($table.'-'.$fields);
-                        $values .= $t->field_name."='".$file."',";
+                        $file= $request->file($fields)->store('public/'.$table.'-'.$fields);
+                        $values .= $t->field_name."='".str_replace('public/', '',$file)."',";
+                        // $file= $request->file($fields)->store('public/'.$table.'-'.$fields);
+                        // $values .= $t->field_name."='".str_replace('public/', '',$file)."',";
                     }
                 } else if($t->input_type == 'Checklist'){
                     if($request->$fields == ''){

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Apps;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Resources;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -16,7 +17,7 @@ class RoleController extends Controller
         $ua = request()->server('HTTP_USER_AGENT');
         $roles = Role::when(request()->q, function($roles) {
             $roles = $roles->where('name', 'like', '%' . request()->q . '%');
-        })->with('permissions')->latest()->paginate(5);
+        })->with('permissions')->latest()->paginate(100);
 
         if(stripos($ua,'okhttp') === false){
             return Inertia('Apps/Roles/Index', [
@@ -53,12 +54,15 @@ class RoleController extends Controller
     public function edit($id) 
     {
         $role = Role::with('permissions')->findOrFail($id);
-
         $permissions = Permission::all();
+        // $forms = Permission::where('name','like','form-%')->get();
+        $forms = DB::table('permissions')->where('name','like','form-%')->get();
+        // ddd($forms);
 
         return inertia('Apps/Roles/Edit', [
             'role'          => $role,
-            'permissions'   => $permissions
+            'permissions'   => $permissions,
+            'forms'         => $forms,
         ]);
     }
 

@@ -12,7 +12,8 @@
                                 <span class="font-weight-bold"><i class="fa fa-plus"></i> MANAGE :: {{ table_name }}</span>
                             </div>
                             <div class="card-body">
-                                <button @click="add_field = true" class="btn btn-primary btn-sm me-2" type="button">Add Field</button>
+                                <button data-bs-toggle="modal" data-bs-target="#addFieldModal" class="btn btn-primary btn-sm me-2" type="button">Add Field</button>
+                                <!-- <button @click="add_field = true" class="btn btn-primary btn-sm me-2" type="button">Add Field</button> -->
                                 <div v-show="add_field" class="absolute inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50">
                                     <div class="max-w-2xl p-6 bg-white rounded-md shadow-xl">
                                     <div class="flex items-center justify-between">
@@ -28,7 +29,7 @@
                                                 <option v-for="field in fields" :value="field.datatype">{{ field.name }}</option>
                                             </select>
                                             <br>
-                                            <Link href="#" class="btn btn-danger" >Cancel</Link>&nbsp&nbsp&nbsp&nbsp
+                                            <Link href="#" class="btn btn-danger" >Cancel</Link>
                                             <button class="btn btn-success" type="submit">
                                             Save
                                             </button>
@@ -39,7 +40,7 @@
                                 <br><br>
                                 <table class="table table-striped table-bordered table-hover">
                                     <thead>
-                                        <th class="text-center">Field Name</th> <th class="text-center"> Relation </th><th class="text-center">Action</th>
+                                        <th class="text-center">Field Name</th> <th class="text-center"> Relation </th><th class="text-center"> Input Type </th><th class="text-center">Action</th>
                                     </thead>
                                     <tbody>
                                         <tr v-for="header in headers">
@@ -59,6 +60,9 @@
                                                 </div>
                                                 <!--  -->
                                             </td>
+                                            <td> {{ header.input_type }} <br>
+                                                <button class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#datatypeModal" @click="changeType(header)"> <i class="fa fa-link   me-1"></i> Change Data Type</button>
+                                            </td>
                                             <td class="text-center">
                                                 <div>
                                                     <div v-if="header.relation === '0'">
@@ -66,7 +70,7 @@
                                                         <br>
                                                         <br>
                                                     </div>
-                                                    <div v-if="parent_count === '0'">
+                                                    <div v-if="parent_count == '0'">
                                                         <button class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#parentModal" @click="setParent(header)"> <i class="fas fa-code-branch"></i> Set As Parent</button>
                                                         <br>
                                                         <br>
@@ -107,7 +111,7 @@
                                     <option v-for="table in avail_tables" :value="table.id">{{ table.description }}</option>
                                 </select>
                             </div>
-                            <div  v-if="filteredChain.length">
+                            <div v-if="filteredChain.length">
                                 <label>Refer To Column:</label>
                                 <select class="form-control" name="refer_to" v-model="selectedSubChainIds">
                                     <option v-for="chain in filteredChain" :value="chain.field_name">{{ chain.field_description }}</option>
@@ -180,6 +184,91 @@
         </div>
         <!-- End of Modal Parent-Child -->
 
+        <!-- The Modal Add Column -->
+        <div class="modal" id="addFieldModal" ref="addFieldModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Column</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form action="/apps/forms/new_field" method="post">
+                            <input class="form-control" :value="table" type="hidden" name="table">
+                            <input type="hidden" name="_token" :value="csrfToken">
+                            <input class="form-control" type="text" name="name">
+                            <div>
+                                <br>
+                                <label>Input Type</label>
+                                <select class="form-control" name="data_type" v-model="selectedType" @change="onChangeType">
+                                    <option v-for="field in fields" :value="field.name" @change="onChangeType">{{ field.name }}</option>
+                                </select>
+                            </div>
+                            <div v-if="filteredTypes.length">
+                                <label>Data From</label>
+                                <select class="form-control" name="table_to" v-model="selectedChecklistTable" @change="onChangeChecklistTable">
+                                    <option v-for="types in filteredTypes" :value="types.id">{{ types.description }}</option>
+                                </select>
+                                <div v-if="filteredChecklistTable.length">
+                                <label>Select Field</label>
+                                <select class="form-control" id="relate_to_field" name="field_to">
+                                    <option v-for="chk in filteredChecklistTable" :value="chk.field_name">{{ chk.field_description }}</option>
+                                </select>
+                            </div>
+                            </div>
+                            <br>
+                            <div class="modal-footer">
+                                <button class="btn btn-success" type="submit"> Save </button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                </div>
+            </div>
+        </div>
+        <!-- End of Modal Add Column -->
+
+        <!-- The Modal Change Data Type -->
+        <div class="modal" id="datatypeModal" ref="datatypeModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Change Data Type : {{ selected_type.field_description }}</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form action="/apps/forms/new_field" method="post">
+                            <input class="form-control" :value="table" type="hidden" name="table">
+                            <input type="hidden" name="_token" :value="csrfToken">
+                            <input class="form-control" type="hidden" name="name" :value="selected_type.field_name">
+                            <div>
+                                <label>Input Type</label>
+                                <select class="form-control" name="data_type">
+                                    <option v-for="field in fields" :value="field.datatype">{{ field.name }}</option>
+                                </select>
+                            </div>
+                            <br>
+                            <div class="modal-footer">
+                                <button class="btn btn-success" type="submit"> Save </button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                </div>
+            </div>
+        </div>
+        <!-- End of Modal Change Data Type -->
+
     </main>
 </template>
 
@@ -222,14 +311,21 @@
             related: Array,
             relate: String,
             csrfToken: String,
-            parent_count: String,
+            parent_count: Number,
         },
 
         data: () => ({
             selected_field: '',
+            selected_type: '',
             selectedChainIds: -1,
             selectedSubChainIds: -1,
+            selected_type: '',
+            selectedType: -1,
+            selectedSubType: -1,
+            selectedChecklistTable: -1,
+            selectedFieldChecklist: -1,
             as_parent:'',
+            selected_input_type:'',
             child_available: '',
             parent_available: '',
             parentChainIds: -1,
@@ -240,10 +336,29 @@
         methods: {
             sendInfo(header) {
                 this.selected_field = header;
+                console.log(header);
+            },
+
+            changeType(header) {
+                this.selected_type = header;
             },
 
             setParent(header) {
                 this.as_parent = header;
+            },
+
+            onChangeType() {
+                this.selectedSubType = -1;
+                if(!this.selectedType) {
+                    this.selectedType = -1;
+                }
+            },
+
+            onChangeChecklistTable() {
+                this.selectedFieldChecklist = -1;
+                if(!this.selectedChecklistTable) {
+                    this.selectedChecklistTable = -1;
+                }
             },
 
             onChangeChain() {
@@ -275,6 +390,28 @@
                 }
             }
             return filteredsubChains;
+            },
+
+            filteredTypes() {
+            let filteredTypeData = [];
+            // console.log(this.avail_tables);
+            if(this.selectedType == 'Checklist'){
+                filteredTypeData.push(this.avail_tables);
+                return this.avail_tables;
+            }
+
+            return filteredTypeData;
+            },
+
+            filteredChecklistTable() {
+            let filteredData = [];
+            for(let i = 0 ; i < this.structures.length ; i++) {
+                let structures = this.structures[i];
+                if(structures.table_id == this.selectedChecklistTable) {
+                    filteredData.push(structures);
+                }
+            }
+            return filteredData;
             },
 
             filteredChild() {

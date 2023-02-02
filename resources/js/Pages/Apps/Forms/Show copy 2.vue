@@ -14,7 +14,7 @@
                             <form>
                                 <div class="input-group mb-3" v-if="hasAnyPermission([create_data])">
                                     <!-- /apps/forms/${table}/add_data -->
-                                    <Link href="#" class="btn btn-primary input-group-text" data-bs-toggle="modal" data-bs-target="#add_dataModal" @click="newData"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
+                                    <Link href="#" class="btn btn-primary input-group-text" data-bs-toggle="modal" data-bs-target="#add_dataModal"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
                                     <input type="text" class="form-control" placeholder="search by role name . . .">
 
                                     <button class="btn btn-primary input-group-text" type="submit"> <i class="fa fa-search me-2"></i> SEARCH</button>
@@ -32,14 +32,6 @@
                                         <td v-for="header in headers">
                                             <div v-if="header.input_type == 'File'">
                                                 <img :src="showImage() + form[header.field_name]" class="object-cover h-40 w-80"/>
-                                            </div>
-                                            <div v-else-if="header.input_type == 'Yes/No'" class="text-center">
-                                                <div v-if="form[header.field_name] == '1'">
-                                                    Yes
-                                                </div>
-                                                <div v-else>
-                                                    No
-                                                </div>
                                             </div>
                                             <div v-else>
                                                 {{ form[header.field_name] }}
@@ -146,7 +138,7 @@
                                         </div>
                                         <div v-else-if="header.input_type === 'Longtext'">
                                             <label class="fw-bold">{{ header.field_description }}</label>
-                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description"></textarea>
+                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
                                         </div>
                                         <div v-else-if="header.input_type.includes('#')">
                                             <div v-if="header.input_type.split('#')[0] === 'Parent'">
@@ -191,7 +183,7 @@
                                     </div>
                                     <div v-else-if="header.input_type === 'Longtext'">
                                         <label class="fw-bold">{{ header.field_description }}</label>
-                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description"></textarea>
+                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
                                     </div>
                                     <div v-else-if="header.input_type === 'Yes/No'">
                                         <label class="fw-bold">{{ header.field_description }}</label>
@@ -517,11 +509,6 @@
                         this.selectedSubChainIds = form[structures.field_name];
                     }
                 }
-            },
-
-            newData() {
-                this.selectedChainIds = '';
-                this.selectedSubChainIds = '';
             },
 
             showImage() {

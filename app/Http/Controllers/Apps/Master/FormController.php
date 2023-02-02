@@ -42,7 +42,6 @@ class FormController extends Controller
         $select_val = substr($e,0,-1);
         $select_val .= ')';
         $form_access = DB::table('master_tables')->whereIn('name',$a)->get();
-        // dd($form_access);
         return Inertia::render('Apps/Forms/Index', [
             'form_accesses'   => $form_access,
         ]);
@@ -186,7 +185,6 @@ class FormController extends Controller
         $parent_count = 0;
         $parent_data  = array();
         $child_data   = array();
-        // dd($relation);
         if($relation->count() > 0){
             foreach ($relation as $rel){
                 $result[] = [$rel->field_from => DB::table($rel->table_name_to)->get(),"field_from" => $rel->field_from];
@@ -197,7 +195,6 @@ class FormController extends Controller
         foreach ($header as $he){
             if(str_contains($he->input_type, 'Parent')){
                 $parent_count = +1;
-                // dd(explode('#', $he->relate_to)[0]);
                 $parent_data = DB::table(explode('#', $he->relate_to)[0])->select(explode('#', $he->relate_to)[1])->distinct()->get();
                 $child_data  = DB::table(explode('#', $he->relate_to)[0])->get();
             }
@@ -205,7 +202,6 @@ class FormController extends Controller
                 $checklist_data[explode('#',$he->relate_to)[0]] = [explode('#',$he->relate_to)[0] => DB::table(explode('#',$he->relate_to)[0])->get(),"field_from" => explode('#',$he->relate_to)[1]];
             }
         }
-        // dd($checklist_data);
         $field  = DB::table('master_datatype')->get();
         $show_table  = DB::table('master_tables')->where('is_show',1)->get();
         $structures  = DB::table('master_table_structures')->where('is_show',1)->get();
@@ -291,7 +287,6 @@ class FormController extends Controller
             return Inertia::render('Apps/Forbidden', [
             ]);
         }
-
     }
 
     public function set_relation(Request $request)
@@ -362,9 +357,6 @@ class FormController extends Controller
             $select_field .= $t->field_name.',';
             if($t->input_type == 'File'){
                 $file= $request->file($fields)->store('public/'.$table.'-'.$fields);
-                // $file= $request->file($fields);
-                // $file->storeAs('public/files', $file->hashName());
-                // dd($file);
                 $values .= "'".str_replace('public/', '',$file)."',";
             } else if($t->input_type == 'Checklist'){
                 if($request->$fields == ''){
@@ -433,8 +425,6 @@ class FormController extends Controller
                     if($request->file($fields)){
                         $file= $request->file($fields)->store('public/'.$table.'-'.$fields);
                         $values .= $t->field_name."='".str_replace('public/', '',$file)."',";
-                        // $file= $request->file($fields)->store('public/'.$table.'-'.$fields);
-                        // $values .= $t->field_name."='".str_replace('public/', '',$file)."',";
                     }
                 } else if($t->input_type == 'Checklist'){
                     if($request->$fields == ''){

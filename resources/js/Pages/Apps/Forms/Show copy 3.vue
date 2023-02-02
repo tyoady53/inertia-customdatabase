@@ -14,7 +14,7 @@
                             <form>
                                 <div class="input-group mb-3" v-if="hasAnyPermission([create_data])">
                                     <!-- /apps/forms/${table}/add_data -->
-                                    <Link href="#" class="btn btn-primary input-group-text" data-bs-toggle="modal" data-bs-target="#add_dataModal" @click="newData"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
+                                    <Link href="#" class="btn btn-primary input-group-text" data-bs-toggle="modal" data-bs-target="#add_dataModal"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
                                     <input type="text" class="form-control" placeholder="search by role name . . .">
 
                                     <button class="btn btn-primary input-group-text" type="submit"> <i class="fa fa-search me-2"></i> SEARCH</button>
@@ -32,14 +32,6 @@
                                         <td v-for="header in headers">
                                             <div v-if="header.input_type == 'File'">
                                                 <img :src="showImage() + form[header.field_name]" class="object-cover h-40 w-80"/>
-                                            </div>
-                                            <div v-else-if="header.input_type == 'Yes/No'" class="text-center">
-                                                <div v-if="form[header.field_name] == '1'">
-                                                    Yes
-                                                </div>
-                                                <div v-else>
-                                                    No
-                                                </div>
                                             </div>
                                             <div v-else>
                                                 {{ form[header.field_name] }}
@@ -146,7 +138,7 @@
                                         </div>
                                         <div v-else-if="header.input_type === 'Longtext'">
                                             <label class="fw-bold">{{ header.field_description }}</label>
-                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description"></textarea>
+                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
                                         </div>
                                         <div v-else-if="header.input_type.includes('#')">
                                             <div v-if="header.input_type.split('#')[0] === 'Parent'">
@@ -191,7 +183,7 @@
                                     </div>
                                     <div v-else-if="header.input_type === 'Longtext'">
                                         <label class="fw-bold">{{ header.field_description }}</label>
-                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description"></textarea>
+                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
                                     </div>
                                     <div v-else-if="header.input_type === 'Yes/No'">
                                         <label class="fw-bold">{{ header.field_description }}</label>
@@ -272,75 +264,101 @@
                             <input class="form-control" name="table" :value="table" type="hidden">
                             <input class="form-control" name="data_id" :value="selectedUser.id" type="hidden">
                             <div class="mb-3" v-for="header in headers" :key="header">
-                                <div v-if="relate == 'yes'">
-                                    <div v-if="header.relation == '1'">
-                                        <div v-for="rel_data in relation">
-                                            <div v-if="rel_data.field_from == header.field_name">
-                                                <div v-for="rel in related">
-                                                    <div v-if="rel.field_from == header.field_name">
+                                <div v-for="(sel,idx) in selectedUser" :key="idx">
+                                    <div v-if="relate == 'yes'">
+                                        <div v-if="header.relation == '1'">
+                                            <div v-for="rel_data in relation">
+                                                <div v-if="rel_data.field_from == header.field_name">
+                                                    <div v-for="rel in related">
+                                                        <div v-if="rel.field_from == header.field_name">
+                                                            <label class="fw-bold">{{ header.field_description }}</label>
+                                                            <select class="form-control" :name="header.field_name">
+                                                                <option v-for="option in rel[header.field_name]" :value="option[header.field_name]">{{option[rel_data.refer_to]}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <div v-if="header.input_type.includes('#')">
+                                                <div v-if="header.input_type.split('#')[0] === 'Parent'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <div class="mb-3">
+                                                        <select class="form-control" :name="header.field_name" v-model="selectedChainIds" @change="onChangeChain(header.relate_to.split('#')[1])">
+                                                            <option v-for="parent in parentData" :value="parent[header.relate_to.split('#')[1]]">{{ parent[header.relate_to.split('#')[1]] }}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div v-else-if="header.input_type.split('#')[0] === 'Child'">
+                                                    <div  v-if="filteredChain.length">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <select class="form-control" :name="header.field_name" v-model="selectedSubChainIds">
+                                                            <option v-for="chain in filteredChain" :value="chain[header.relate_to.split('#')[1]]">{{ chain[header.relate_to.split('#')[1]] }}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div v-else>
+                                                <div v-switch="header.input_type">
+                                                    <div v-case="'Text'">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="text" :placeholder="header.field_description">
+                                                    </div>
+                                                    <div v-case="'Number'">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="number" :placeholder="header.field_description">
+                                                    </div>
+                                                    <div v-case="'Time'">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="time" :placeholder="header.field_description">
+                                                    </div>
+                                                    <div v-case="'Date'">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="date" :placeholder="header.field_description">
+                                                    </div>
+                                                    <div v-case="'File'">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="file" :placeholder="header.field_description">
+                                                    </div>
+                                                    <div v-case="'Longtext'">
+                                                        <label class="fw-bold">{{ header.field_description }}</label>
+                                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ sel[header.field_name] }}</textarea>
+                                                    </div>
+                                                    <div v-case="'Yes/No'">
                                                         <label class="fw-bold">{{ header.field_description }}</label>
                                                         <select class="form-control" :name="header.field_name">
-                                                            <option v-for="option in rel[header.field_name]" :value="option[header.field_name]">{{option[rel_data.refer_to]}}</option>
+                                                            <option value="1">Yes</option>
+                                                            <option value="0">No</option>
                                                         </select>
+                                                    </div>
+                                                    <div v-case="'Checklist'">
+                                                        <div v-for="(checklist,index) in checklist_data" :key="index">
+                                                            <div v-if="header.relate_to.split('#')[0] == index">
+                                                                <table class="table table-striped table-bordered table-hover">
+                                                                    <thead>
+                                                                        <th class="text-center" colspan="2"> {{ header.field_description }} </th>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr v-for="check in checklist[index]">
+                                                                            <td>
+                                                                                {{check[header.relate_to.split('#')[1]]}}
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                <input type="checkbox" :name="header.field_name+'[]'" :value="check[header.relate_to.split('#')[1]]">
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div v-else>
-                                        <div v-if="header.input_type === 'Text'">
-                                            <label class="fw-bold">{{ header.field_description }}</label>
-                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
-                                        </div>
-                                        <div v-else-if="header.input_type === 'Number'">
-                                            <label class="fw-bold">{{ header.field_description }}</label>
-                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
-                                        </div>
-                                        <div v-else-if="header.input_type === 'Time'">
-                                            <label class="fw-bold">{{ header.field_description }}</label>
-                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="time" :placeholder="header.field_description">
-                                        </div>
-                                        <div v-else-if="header.input_type === 'Date'">
-                                            <label class="fw-bold">{{ header.field_description }} </label>
-                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="date" :placeholder="header.field_description">
-                                        </div>
-                                        <div v-else-if="header.input_type === 'File'">
-                                            <label class="fw-bold">{{ header.field_description }}</label>
-                                            <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="file" :placeholder="header.field_description">
-                                        </div>
-                                        <div v-else-if="header.input_type === 'Longtext'">
-                                            <label class="fw-bold">{{ header.field_description }}</label>
-                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
-                                        </div>
-                                        <div v-else-if="header.input_type === 'Yes/No'">
-                                            <label class="fw-bold">{{ header.field_description }}</label>
-                                            <select class="form-control" :name="header.field_name">
-                                                <option value="1">Yes</option>
-                                                <option value="0">No</option>
-                                            </select>
-                                        </div>
-                                        <div v-else-if="header.input_type === 'Checklist'">
-                                            <div v-for="(checklist,index) in checklist_data" :key="index">
-                                                <div v-if="header.relate_to.split('#')[0] == index">
-                                                    <table class="table table-striped table-bordered table-hover">
-                                                        <thead>
-                                                            <th class="text-center" colspan="2"> {{ header.field_description }} </th>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr v-for="check in checklist[index]">
-                                                                <td>
-                                                                    {{check[header.relate_to.split('#')[1]]}}
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <input type="checkbox" :name="header.field_name+'[]'" :value="check[header.relate_to.split('#')[1]]">
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div v-else-if="header.input_type.includes('#')">
+                                        <div v-if="header.input_type.includes('#')">
                                             <div v-if="header.input_type.split('#')[0] === 'Parent'">
                                                 <label class="fw-bold">{{ header.field_description }}</label>
                                                 <div class="mb-3">
@@ -358,76 +376,60 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div v-else>
-                                    <div v-if="header.input_type === 'Text'">
-                                        <label class="fw-bold">{{ header.field_description }}</label>
-                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="text" :placeholder="header.field_description">
-                                    </div>
-                                    <div v-else-if="header.input_type === 'Number'">
-                                        <label class="fw-bold">{{ header.field_description }}</label>
-                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">
-                                    </div>
-                                    <div v-else-if="header.input_type === 'Time'">
-                                        <label class="fw-bold">{{ header.field_description }}</label>
-                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="time" :placeholder="header.field_description">
-                                    </div>
-                                    <div v-else-if="header.input_type === 'Date'">
-                                        <label class="fw-bold">{{ header.field_description }}</label>
-                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="date" :placeholder="header.field_description">
-                                    </div>
-                                    <div v-else-if="header.input_type === 'File'">
-                                        <label class="fw-bold">{{ header.field_description }}</label>
-                                        <input class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="file" :placeholder="header.field_description">
-                                    </div>
-                                    <div v-else-if="header.input_type === 'Longtext'">
-                                        <label class="fw-bold">{{ header.field_description }}</label>
-                                        <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
-                                    </div>
-                                    <div v-else-if="header.input_type === 'Yes/No'">
-                                        <label class="fw-bold">{{ header.field_description }}</label>
-                                        <select class="form-control" :name="header.field_name">
-                                            <option value="1">Yes</option>
-                                            <option value="0">No</option>
-                                        </select>
-                                    </div>
-                                    <div v-else-if="header.input_type === 'Checklist'">
-                                        <div v-for="(checklist,index) in checklist_data" :key="index">
-                                            <div v-if="header.relate_to.split('#')[0] == index">
-                                                <table class="table table-striped table-bordered table-hover">
-                                                    <thead>
-                                                        <th class="text-center" colspan="2"> {{ header.field_description }} </th>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr v-for="check in checklist[index]">
-                                                            <td>
-                                                                {{check[header.relate_to.split('#')[1]]}}
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input type="checkbox" :name="header.field_name+'[]'" :value="check[header.relate_to.split('#')[1]]">
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div v-else-if="header.input_type.includes('#')">
-                                        <div v-if="header.input_type.split('#')[0] === 'Parent'">
-                                            <label class="fw-bold">{{ header.field_description }}</label>
-                                            <div class="mb-3">
-                                                <select class="form-control" :name="header.field_name" v-model="selectedChainIds" @change="onChangeChain(header.relate_to.split('#')[1])">
-                                                    <option v-for="parent in parentData" :value="parent[header.relate_to.split('#')[1]]">{{ parent[header.relate_to.split('#')[1]] }}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div v-else-if="header.input_type.split('#')[0] === 'Child'">
-                                            <div  v-if="filteredChain.length">
-                                                <label class="fw-bold">{{ header.field_description }}</label>
-                                                <select class="form-control" :name="header.field_name" v-model="selectedSubChainIds">
-                                                    <option v-for="chain in filteredChain" :value="chain[header.relate_to.split('#')[1]]">{{ chain[header.relate_to.split('#')[1]] }}</option>
-                                                </select>
+                                        <div v-else>
+                                            <div v-switch="header.input_type">
+                                                <div v-case="'Text'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="text" :placeholder="header.field_description">
+                                                </div>
+                                                <div v-case="'Number'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="number" :placeholder="header.field_description">
+                                                </div>
+                                                <div v-case="'Time'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="time" :placeholder="header.field_description">
+                                                </div>
+                                                <div v-case="'Date'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="date" :placeholder="header.field_description">
+                                                </div>
+                                                <div v-case="'File'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <input class="form-control" :name="header.field_name" :value="sel[header.field_name]" type="file" :placeholder="header.field_description">
+                                                </div>
+                                                <div v-case="'Longtext'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                                </div>
+                                                <div v-case="'Yes/No'">
+                                                    <label class="fw-bold">{{ header.field_description }}</label>
+                                                    <select class="form-control" :name="header.field_name">
+                                                        <option value="1">Yes</option>
+                                                        <option value="0">No</option>
+                                                    </select>
+                                                </div>
+                                                <div v-case="'Checklist'">
+                                                    <div v-for="(checklist,index) in checklist_data" :key="index">
+                                                        <div v-if="header.relate_to.split('#')[0] == index">
+                                                            <table class="table table-striped table-bordered table-hover">
+                                                                <thead>
+                                                                    <th class="text-center" colspan="2"> {{ header.field_description }} </th>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr v-for="check in checklist[index]">
+                                                                        <td>
+                                                                            {{check[header.relate_to.split('#')[1]]}}
+                                                                        </td>
+                                                                        <td class="text-center">
+                                                                            <input type="checkbox" :name="header.field_name+'[]'" :value="check[header.relate_to.split('#')[1]]">
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -517,11 +519,6 @@
                         this.selectedSubChainIds = form[structures.field_name];
                     }
                 }
-            },
-
-            newData() {
-                this.selectedChainIds = '';
-                this.selectedSubChainIds = '';
             },
 
             showImage() {

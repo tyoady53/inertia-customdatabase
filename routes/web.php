@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Apps\Master\FormController;
+use App\Http\Controllers\Apps\Master\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,26 +70,28 @@ Route::prefix('apps')->group(function() {
 
             Route::get('{form:slug}/manage-relation', [FormController::class, 'manage_relation'])->name('forms.manage-relation');
 
-            Route::post('add_record', [FormController::class, 'store']);
-
-            // Route::post('add_record', [FormController::class, 'add_record'])->name('forms.add_record');
-
             Route::post('update_data', [FormController::class, 'update_data'])->name('forms.update_data');
 
-            Route::post('update', [FormController::class, 'update'])->name('forms.update');
+            // Route::post('update', [FormController::class, 'update'])->name('forms.update');
 
-            Route::post('manage', [FormController::class, 'manage']);
+            // Route::post('manage', [FormController::class, 'manage']);
 
-            Route::post('delete', [FormController::class, 'delete'])->name('forms.delete');
+            // Route::post('delete', [FormController::class, 'delete'])->name('forms.delete');
 
-            Route::post('remove_relation', [FormController::class, 'remove_relation'])->name('forms.remove_relation');
+            // Route::post('remove_relation', [FormController::class, 'remove_relation'])->name('forms.remove_relation');
 
-            Route::post('set_parent', [FormController::class, 'set_parent'])->name('forms.set_parent');
+            // Route::post('set_parent', [FormController::class, 'set_parent'])->name('forms.set_parent');
 
-            Route::post('{form:slug}/addcolumn', [FormController::class, 'addcolumn']);
+            // Route::post('{form:slug}/addcolumn', [FormController::class, 'addcolumn']);
 
-            Route::post('{form:slug}/update', [FormController::class, 'update']);
+            // Route::post('{form:slug}/update', [FormController::class, 'update']);
 
+        });
+
+        Route::prefix('report')->group( function() {
+            Route::get('index', [ReportController::class, 'index'])->name('report.index');
+
+            Route::get('{form:slug}/show', [ReportController::class, 'show'])->name('report.show');
         });
     });
 

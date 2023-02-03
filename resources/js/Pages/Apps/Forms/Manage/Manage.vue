@@ -336,7 +336,6 @@
         methods: {
             sendInfo(header) {
                 this.selected_field = header;
-                console.log(header);
             },
 
             changeType(header) {
@@ -394,7 +393,6 @@
 
             filteredTypes() {
             let filteredTypeData = [];
-            // console.log(this.avail_tables);
             if(this.selectedType == 'Checklist'){
                 filteredTypeData.push(this.avail_tables);
                 return this.avail_tables;

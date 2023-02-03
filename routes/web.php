@@ -92,6 +92,8 @@ Route::prefix('apps')->group(function() {
             Route::get('index', [ReportController::class, 'index'])->name('report.index');
 
             Route::get('{form:slug}/show', [ReportController::class, 'show'])->name('report.show');
+
+            Route::get('generate', [ReportController::class, 'generate_report'])->name('report.generate');
         });
     });
 

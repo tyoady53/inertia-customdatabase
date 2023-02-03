@@ -20900,7 +20900,6 @@ __webpack_require__.r(__webpack_exports__);
   },
   setup: function setup(props) {
     var check_array = [];
-    // const selectDataArray = ref([]);
     var someFunction = function someFunction(name) {
       if (checkBoxArray.value[name] !== true) {
         check_array.push(name);
@@ -20913,34 +20912,10 @@ __webpack_require__.r(__webpack_exports__);
     var array = [];
     var data_array = [];
     var onChangeChain = function onChangeChain(field) {
-      if (data_array.length > 0) {
-        for (var i = 0; i < data_array.length; i++) {
-          console.log(data_array[i]);
-          if (data_array[i] === field) {
-            console.log(data_array[i]);
-            var index = data_array.indexOf(field);
-            data_array.splice(index, 1);
-            data_array.splice(index, 1);
-            data_array.push(field, selectedChainIds.value[field]);
-          } //else {
-          //     data_array.push(field, selectedChainIds.value[field]);
-          // }
-        }
-      } else {
-        data_array.push(field, selectedChainIds.value[field]);
-      }
+      data_array.push(field + '->' + selectedChainIds.value[field]);
       array.push(selectedChainIds.value[field]);
       console.log('data_array : ' + data_array);
     };
-
-    // const header = props.selected
-    //     .filter(obj => props.headers.find(field_name => field_name === obj.field_name)) // this returns the array of object that are stored
-    //     .map(elm => {
-    //         return {
-    //             title: elm.field_name,
-    //         }
-    //     })
-
     var checkBoxArray = (0,vue__WEBPACK_IMPORTED_MODULE_2__.ref)([]);
     var selectedChainIds = (0,vue__WEBPACK_IMPORTED_MODULE_2__.ref)([]);
     var form = (0,vue__WEBPACK_IMPORTED_MODULE_2__.reactive)({
@@ -27021,44 +26996,51 @@ var _hoisted_9 = {
   "class": "card-body"
 };
 var _hoisted_10 = {
+  "class": "card p-3",
+  action: "/apps/report/generate",
+  method: "get",
+  target: "_blank"
+};
+var _hoisted_11 = ["value"];
+var _hoisted_12 = {
   "class": "input-group justify-content"
 };
-var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+var _hoisted_13 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
   value: ""
 }, "Select User", -1 /* HOISTED */);
-var _hoisted_12 = ["value"];
-var _hoisted_13 = {
+var _hoisted_14 = ["value"];
+var _hoisted_15 = {
   "class": "input-group justify-content"
 };
-var _hoisted_14 = {
+var _hoisted_16 = {
   "class": "table table-striped table-bordered table-hover"
 };
-var _hoisted_15 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", {
+var _hoisted_17 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", {
   "class": "text-center",
   colspan: "3"
 }, "Filter Data")], -1 /* HOISTED */);
-var _hoisted_16 = {
+var _hoisted_18 = {
   "class": "mb-3"
 };
-var _hoisted_17 = {
+var _hoisted_19 = {
   key: 0,
   "class": "text-center"
 };
-var _hoisted_18 = ["onUpdate:modelValue", "onClick", "value"];
-var _hoisted_19 = {
+var _hoisted_20 = ["onUpdate:modelValue", "onClick", "value"];
+var _hoisted_21 = {
   key: 1,
   "class": "text-center"
 };
-var _hoisted_20 = {
+var _hoisted_22 = {
   "class": "text-center"
 };
-var _hoisted_21 = {
+var _hoisted_23 = {
   key: 0
 };
-var _hoisted_22 = ["onUpdate:modelValue", "onChange", "name"];
-var _hoisted_23 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", null, null, -1 /* HOISTED */);
-var _hoisted_24 = ["value"];
-var _hoisted_25 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_24 = ["onUpdate:modelValue", "onChange", "name"];
+var _hoisted_25 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", null, null, -1 /* HOISTED */);
+var _hoisted_26 = ["value"];
+var _hoisted_27 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "input-group justify-content-md-end"
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
   type: "submit",
@@ -27075,22 +27057,21 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
 
     _: 1 /* STABLE */
-  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("main", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_7, [_hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Report " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($props.table_name), 1 /* TEXT */)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <form class=\"card p-3\" action=\"/apps/report/generate\" method=\"get\"> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", {
-    "class": "card p-3",
-    onSubmit: _cache[1] || (_cache[1] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function () {
-      return $setup.submit && $setup.submit.apply($setup, arguments);
-    }, ["prevent"]))
-  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
-    name: "filter-user",
+  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("main", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_7, [_hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Report " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($props.table_name), 1 /* TEXT */)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", _hoisted_10, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <form class=\"card p-3\" @submit.prevent=\"submit\"> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    type: "hidden",
+    name: "table",
+    value: $props.table
+  }, null, 8 /* PROPS */, _hoisted_11), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_12, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+    name: "user",
     "onUpdate:modelValue": _cache[0] || (_cache[0] = function ($event) {
       return $setup.form.user = $event;
     })
-  }, [_hoisted_11, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.users, function (user) {
+  }, [_hoisted_13, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.users, function (user) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
       value: user.id
-    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(user.name), 9 /* TEXT, PROPS */, _hoisted_12);
-  }), 256 /* UNKEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.form.user]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_13, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_14, [_hoisted_15, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", _hoisted_16, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.headers, function (header) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(header.field_description), 1 /* TEXT */), header.input_type != 'File' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_17, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <input type=\"checkbox\" v-model=\"checkBoxArray[header.field_name]\" @click=\"someFunction(header.field_name)\" name=\"check[]\" :value=\"header.field_name\"> "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(user.name), 9 /* TEXT, PROPS */, _hoisted_14);
+  }), 256 /* UNKEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.form.user]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_15, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_16, [_hoisted_17, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", _hoisted_18, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.headers, function (header) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(header.field_description), 1 /* TEXT */), header.input_type != 'File' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_19, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "checkbox",
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return $setup.checkBoxArray[header.field_name] = $event;
@@ -27098,12 +27079,12 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       onClick: function onClick($event) {
         return $setup.someFunction(header.field_name);
       },
-      name: "check[]",
+      name: "check_array[]",
       value: header.field_name
-    }, null, 8 /* PROPS */, _hoisted_18), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.checkBoxArray[header.field_name]]])])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_19)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_20, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.selected, function (sel, index) {
+    }, null, 8 /* PROPS */, _hoisted_20), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, $setup.checkBoxArray[header.field_name]]])])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("td", _hoisted_21)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_22, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.selected, function (sel, index) {
       return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
         key: index
-      }, [index == header.field_name ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_21, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+      }, [index == header.field_name ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_23, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
         "class": "form-control",
         "onUpdate:modelValue": function onUpdateModelValue($event) {
           return $setup.selectedChainIds[header.field_name] = $event;
@@ -27111,14 +27092,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         onChange: function onChange($event) {
           return $setup.onChangeChain(header.field_name);
         },
-        name: header.field_name
-      }, [_hoisted_23, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)(sel, function (data) {
+        name: 'data[' + header.field_name + ']'
+      }, [_hoisted_25, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)(sel, function (data) {
         return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
           value: data[header.field_name]
-        }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(data[header.field_name]), 9 /* TEXT, PROPS */, _hoisted_24);
-      }), 256 /* UNKEYED_FRAGMENT */))], 40 /* PROPS, HYDRATE_EVENTS */, _hoisted_22), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedChainIds[header.field_name]]])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]);
+        }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(data[header.field_name]), 9 /* TEXT, PROPS */, _hoisted_26);
+      }), 256 /* UNKEYED_FRAGMENT */))], 40 /* PROPS, HYDRATE_EVENTS */, _hoisted_24), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.selectedChainIds[header.field_name]]])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]);
     }), 128 /* KEYED_FRAGMENT */))])]);
-  }), 256 /* UNKEYED_FRAGMENT */))])])]), _hoisted_25], 32 /* HYDRATE_EVENTS */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <table class=\"table table-striped table-bordered table-hover\">\n                                <thead>\n                                       <th class=\"text-center\" v-for=\"header in headers\"> {{ header.field_description }} </th>\n                                </thead>\n                                <tbody>\n                                    <tr v-for=\"form in forms\">\n                                        <td v-for=\"header in headers\">\n                                            <div v-if=\"header.input_type == 'File'\">\n                                                <img :src=\"showImage() + form[header.field_name]\" class=\"object-cover h-40 w-80\"/>\n                                            </div>\n                                            <div v-else-if=\"header.input_type == 'Yes/No'\" class=\"text-center\">\n                                                <div v-if=\"form[header.field_name] == '1'\">\n                                                    Yes\n                                                </div>\n                                                <div v-else>\n                                                    No\n                                                </div>\n                                            </div>\n                                            <div v-else>\n                                                {{ form[header.field_name] }}\n                                            </div>\n                                        </td>\n                                    </tr>\n                                </tbody>\n                            </table> ")])])])])])])], 64 /* STABLE_FRAGMENT */);
+  }), 256 /* UNKEYED_FRAGMENT */))])])]), _hoisted_27]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <table class=\"table table-striped table-bordered table-hover\">\n                                <thead>\n                                       <th class=\"text-center\" v-for=\"header in headers\"> {{ header.field_description }} </th>\n                                </thead>\n                                <tbody>\n                                    <tr v-for=\"form in forms\">\n                                        <td v-for=\"header in headers\">\n                                            <div v-if=\"header.input_type == 'File'\">\n                                                <img :src=\"showImage() + form[header.field_name]\" class=\"object-cover h-40 w-80\"/>\n                                            </div>\n                                            <div v-else-if=\"header.input_type == 'Yes/No'\" class=\"text-center\">\n                                                <div v-if=\"form[header.field_name] == '1'\">\n                                                    Yes\n                                                </div>\n                                                <div v-else>\n                                                    No\n                                                </div>\n                                            </div>\n                                            <div v-else>\n                                                {{ form[header.field_name] }}\n                                            </div>\n                                        </td>\n                                    </tr>\n                                </tbody>\n                            </table> ")])])])])])])], 64 /* STABLE_FRAGMENT */);
 }
 
 /***/ }),

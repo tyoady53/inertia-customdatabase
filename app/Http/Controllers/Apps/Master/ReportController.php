@@ -79,15 +79,28 @@ class ReportController extends Controller
 
     public function generate_report(Request $request)
     {
-        $a = '';
+        $name = $request->table;
+        $user = $request->user;
+        $a = ''; $b = '';
         if($request->check_array){
             for($i = 0; $i < count($request->check_array);$i++){
-                $a .= $request->check_array[$i].', ';
+                foreach($request->data as $index => $d){
+                    if($index == $request->check_array[$i]){
+                        $b .= " AND ".$request->check_array[$i]." = '".$d."'";
+                    }
+                }
             }
-            dd($request,$a,explode('#', substr($request->data_array,0,-1))[0]);
-        } else {
-            dd($request);
         }
+        if($user){
+            $a = " AND ".$name.".created_by = '".$user."'";
+        }
+        // $data = DB::table('users')
+        //     ->join($name, 'users.id', '=', $name.".created_by")
+        //     ->select('*')
+        //     ->where($name.".created_by",$user)$name.created_by = $user
+        //     ->get();
+        $data =  DB::select("select * from users join $name on users.id = $name.created_by where $name.status = 1 $a $b;");
+            dd($request,$a,$b,$user,$data);
 		$table			= $request->table;
 		$edit_id		= $request->data_id;
         $select = DB::table('master_tables')->where('name',$request->table)->first();
@@ -115,7 +128,7 @@ class ReportController extends Controller
 			}
 			$selected = substr($values, 0,-1);
 		}
-		$insert = DB::statement("UPDATE $table SET $selected WHERE id='$edit_id';");
+		$insert = DB::select(DB::raw("UPDATE $table SET $selected WHERE id='$edit_id';"));
 		if($insert){
 			return redirect()->route('forms.show',$table);
 		}

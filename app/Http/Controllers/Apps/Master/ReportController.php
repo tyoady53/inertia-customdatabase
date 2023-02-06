@@ -104,7 +104,7 @@ class ReportController extends Controller
             $a = " AND ".$name.".created_by = '".$user."'";
         }
 
-        // looping and selection for field filter 
+        // looping and selection for field filter
         if($request->check_array){                                  // check is some field checked
             for($i = 0; $i < count($request->check_array);$i++){    // loop data from checklist input
                 foreach($request->data as $index => $d){            // looping data from form input

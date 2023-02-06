@@ -14,11 +14,34 @@
                             <form class="card p-3" action="/apps/report/generate" method="get" target="_blank" >
                             <!-- <form class="card p-3" @submit.prevent="submit"> -->
                                 <input type="hidden" name="table" :value="table">
-                                <div class="input-group justify-content">
-                                    <select name="user" v-model="form.user">
-                                        <option value="">Select User</option>
-                                        <option v-for="user in users" :value="user.id">{{ user.name }}</option>
-                                    </select>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="fw-bold">Select User&nbsp&nbsp</label>
+                                        <select name="user" class="form-control" v-model="form.user">
+                                            <option value=""></option>
+                                            <option v-for="user in users" :value="user.id">{{ user.name }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                        <label class="fw-bold">Filter By Date</label>
+                                            <div class="col-sm-2" style="text-align: right;">
+                                                <label>Start Date</label>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <input type="date" name="start_date">
+                                            </div>
+                                            <div class="col-sm-2" style="text-align: right;">
+                                                <label>End Date</label>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <input type="date" name="end_date">
+                                            </div>
+                                        </div>
+                                    </div>
+                                        
+                                    <br>
+                                    <br>
                                 </div>
                                 <div class="input-group justify-content">
                                     <table class="table table-striped table-bordered table-hover">

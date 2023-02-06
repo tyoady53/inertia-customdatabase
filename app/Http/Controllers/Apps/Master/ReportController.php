@@ -79,58 +79,44 @@ class ReportController extends Controller
 
     public function generate_report(Request $request)
     {
+        $filtered = array();
         $name = $request->table;
         $user = $request->user;
-        $a = ''; $b = '';
+        $a = ''; $b = ''; $date = ''; $date_filter = '';;
+        $select = DB::table('master_tables')->where('name',$name)->first();
+        $header = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
+        $table_name = $select->description;
+        if(!is_null($request->start_date) && !is_null($request->end_date)){
+            $date = "Periode ".$request->start_date." to ".$request->end_date;
+            $date_filter = " AND ".$name.".created_at BETWEEN '".$request->start_date."' AND '".$request->end_date."'";
+        }
+        if($user){
+            $filtered[] = "User`~>`".auth()->user()->name;
+            $a = " AND ".$name.".created_by = '".$user."'";
+        }
         if($request->check_array){
             for($i = 0; $i < count($request->check_array);$i++){
                 foreach($request->data as $index => $d){
                     if($index == $request->check_array[$i]){
+                        $select2 = DB::table('master_table_structures')->where('table_id',$select->id)->where('field_name',$request->check_array[$i])->first();
+                        $filtered[] = $select2->field_description."`~>`".$d;
                         $b .= " AND ".$request->check_array[$i]." = '".$d."'";
                     }
                 }
             }
         }
-        if($user){
-            $a = " AND ".$name.".created_by = '".$user."'";
-        }
-        // $data = DB::table('users')
-        //     ->join($name, 'users.id', '=', $name.".created_by")
-        //     ->select('*')
-        //     ->where($name.".created_by",$user)$name.created_by = $user
-        //     ->get();
-        $data =  DB::select("select * from users join $name on users.id = $name.created_by where $name.status = 1 $a $b;");
-            dd($request,$a,$b,$user,$data);
-		$table			= $request->table;
-		$edit_id		= $request->data_id;
-        $select = DB::table('master_tables')->where('name',$request->table)->first();
-        $table_head  = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
-		$select_field	= '';
-		$values	        = '';
-		if (count($table_head) > 0){
-			foreach ($table_head as $t){
-                $fields = $t->field_name;
-				if($t->input_type == 'File'){
-                    if($request->file($fields)){
-                        $file= $request->file($fields)->store('public/'.$table.'-'.$fields);
-                        $values .= $t->field_name."='".str_replace('public/', '',$file)."',";
-                    }
-                } else if($t->input_type == 'Checklist'){
-                    if($request->$fields == ''){
-                        $values .= $t->field_name."=NULL,";
-                    } else {
-                        $vehicleString = implode(",", $request->$fields);
-                        $values .= $t->field_name."='".$vehicleString."',";
-                    }
-                } else {
-                    $values .= $t->field_name."= '".$request->$fields."',";
-                }
-			}
-			$selected = substr($values, 0,-1);
-		}
-		$insert = DB::select(DB::raw("UPDATE $table SET $selected WHERE id='$edit_id';"));
-		if($insert){
-			return redirect()->route('forms.show',$table);
-		}
+        $query = "SELECT * FROM users JOIN $name ON users.id = $name.created_by WHERE $name.`status` = 1 $a $b $date_filter;";
+        $data =  DB::select($query);
+            // dd($query,$name,$filtered,$date_filter,$request);
+
+        return Inertia::render('Apps/Report/Generate', [
+            'table'         => $name,
+            'csrfToken'     => csrf_token(),
+            'table_name'    => $table_name,
+            'headers'       => $header,
+            'data'          => $data,
+            'date'          => $date,
+            'filters'       => $filtered,
+        ]);
     }
 }

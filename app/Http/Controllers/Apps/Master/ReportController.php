@@ -82,32 +82,55 @@ class ReportController extends Controller
         $filtered = array();
         $name = $request->table;
         $user = $request->user;
-        $a = ''; $b = ''; $date = ''; $date_filter = '';;
+        /** Initializing variable
+         * Variable [a] for filter data by user
+         * variable [b] for filter data by field name
+         * variable [date] for label date selected title of report
+         * variable [date_filter] for filter data by created at
+         */
+        $a = ''; $b = ''; $date = ''; $date_filter = '';$start_date = '';$end_date = '';
         $select = DB::table('master_tables')->where('name',$name)->first();
         $header = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
         $table_name = $select->description;
+        // looping selection and title for created at filter
         if(!is_null($request->start_date) && !is_null($request->end_date)){
             $date = "Periode ".$request->start_date." to ".$request->end_date;
-            $date_filter = " AND ".$name.".created_at BETWEEN '".$request->start_date."' AND '".$request->end_date."'";
+            $date_filter = " AND (".$name.".created_at BETWEEN '".$request->start_date."' AND '".$request->end_date."')";
         }
+
+        // looping and selection data for user filter
         if($user){
             $filtered[] = "User`~>`".auth()->user()->name;
             $a = " AND ".$name.".created_by = '".$user."'";
         }
-        if($request->check_array){
-            for($i = 0; $i < count($request->check_array);$i++){
-                foreach($request->data as $index => $d){
-                    if($index == $request->check_array[$i]){
+
+        // looping and selection for field filter 
+        if($request->check_array){                                  // check is some field checked
+            for($i = 0; $i < count($request->check_array);$i++){    // loop data from checklist input
+                foreach($request->data as $index => $d){            // looping data from form input
+                    if($index == $request->check_array[$i]){        // fetching data checklist input & form input
                         $select2 = DB::table('master_table_structures')->where('table_id',$select->id)->where('field_name',$request->check_array[$i])->first();
-                        $filtered[] = $select2->field_description."`~>`".$d;
-                        $b .= " AND ".$request->check_array[$i]." = '".$d."'";
+                        $filtered[] = $select2->field_description."`~>`".$d;    // for title
+                        $b .= " AND ".$request->check_array[$i]." = '".$d."'";  // add selector
+                    } else {                                        // exception for loop data where field is date format
+                        $select2 = DB::table('master_table_structures')->where('table_id',$select->id)->where('field_name',$request->check_array[$i])->first();
+                        if(str_contains($index,$request->check_array[$i])){
+                            if(str_contains($index,'start_date#')){
+                                $start_date .= $d;                  // start date of field filter
+                            } else {
+                                $end_date .= $d;                    // end date of field filter
+                                $b .= " AND (".$request->check_array[$i]." BETWEEN '".$start_date."' AND '".$end_date."')"; // add selector field date type
+                                $filtered[] = $select2->field_description."`~>`".$start_date." to ".$end_date;              // for title
+                                $start_date = '';$end_date = '';    // reset the date filter
+                            }
+                        }
                     }
                 }
             }
         }
-        $query = "SELECT * FROM users JOIN $name ON users.id = $name.created_by WHERE $name.`status` = 1 $a $b $date_filter;";
+        $query = "SELECT * FROM users JOIN $name ON users.id = $name.created_by WHERE $name.`status` = 1 $a $b $date_filter;"; // the query selector
         $data =  DB::select($query);
-            // dd($query,$name,$filtered,$date_filter,$request);
+            // dd($query);
 
         return Inertia::render('Apps/Report/Generate', [
             'table'         => $name,

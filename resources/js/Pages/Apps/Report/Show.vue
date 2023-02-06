@@ -39,7 +39,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                        
                                     <br>
                                     <br>
                                 </div>
@@ -61,10 +60,28 @@
                                                 <td class="text-center">
                                                     <div v-for="(sel,index) in selected" :key="index">
                                                         <div v-if="index == header.field_name">
-                                                            <select class="form-control" v-model="selectedChainIds[header.field_name]" @change="onChangeChain(header.field_name)" :name="'data['+header.field_name+']'">
-                                                                <option></option>
-                                                                <option v-for="(data) in sel" :value="data[header.field_name]">{{ data[header.field_name] }}</option>
-                                                            </select>
+                                                            <div v-if="header.input_type == 'Date'">
+                                                                <div class="row">
+                                                                    <div class="col-sm-2" style="text-align: right;">
+                                                                        <label>Start Date</label>
+                                                                    </div>
+                                                                    <div class="col-sm-4">
+                                                                        <input type="date" :name="'data[start_date#'+header.field_name+']'">
+                                                                    </div>
+                                                                    <div class="col-sm-2" style="text-align: right;">
+                                                                        <label>End Date</label>
+                                                                    </div>
+                                                                    <div class="col-sm-4">
+                                                                        <input type="date" :name="'data[end_date#'+header.field_name+']'">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div v-else>
+                                                                <select class="form-control" v-model="selectedChainIds[header.field_name]" @change="onChangeChain(header.field_name)" :name="'data['+header.field_name+']'">
+                                                                    <option></option>
+                                                                    <option v-for="(data) in sel" :value="data[header.field_name]">{{ data[header.field_name] }}</option>
+                                                                </select>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </td>

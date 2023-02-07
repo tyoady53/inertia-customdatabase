@@ -80,7 +80,7 @@ Route::prefix('apps')->group(function() {
 
             // Route::post('remove_relation', [FormController::class, 'remove_relation'])->name('forms.remove_relation');
 
-            // Route::post('set_parent', [FormController::class, 'set_parent'])->name('forms.set_parent');
+            Route::post('set_parent', [FormController::class, 'set_parent'])->name('forms.set_parent');
 
             // Route::post('{form:slug}/addcolumn', [FormController::class, 'addcolumn']);
 

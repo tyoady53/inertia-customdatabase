@@ -20,6 +20,7 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request)
     {
+        $form_access = array();
         if(auth()){
             $user_id = auth()->user()->id;
         }

@@ -18,9 +18,7 @@
                                 <h5>{{ date }}</h5>
                             </div>
                             <div>
-                                <button :loading="downloadLoading" type="primary" icon="el-icon-document" @click="handleDownload">
-                                    Export Excel
-                                </button>
+                                
                             </div>
                             <form>
                                 <div v-if="filters.length">
@@ -102,35 +100,35 @@
             date : String,
         },
 
-        methods: {
-            handleDownload() {
-                this.downloadLoading = true
-                import('@/vendor/Export2Excel').then(excel => {
-                    const tHeader = this.headers
-                    const filterVal = ['id', 'title', 'author', 'pageviews', 'display_time']
-                    const list = this.list
-                    const data = this.formatJson(filterVal, list)
-                    console.log(tHeader);
-                    excel.export_json_to_excel({
-                        header: tHeader,
-                        data,
-                        filename: this.filename,
-                        autoWidth: this.autoWidth,
-                        bookType: this.bookType
-                    })
-                    this.downloadLoading = false
-                })
-            },
-            formatJson(filterVal, jsonData) {
-            return jsonData.map(v => filterVal.map(j => {
-                if (j === 'timestamp') {
-                return parseTime(v[j])
-                } else {
-                return v[j]
-                }
-            }))
-            }
-        },
+        // methods: {
+        //     handleDownload() {
+        //         this.downloadLoading = true
+        //         import('@/vendor/Export2Excel').then(excel => {
+        //             const tHeader = this.headers
+        //             const filterVal = ['id', 'title', 'author', 'pageviews', 'display_time']
+        //             const list = this.list
+        //             const data = this.formatJson(filterVal, list)
+        //             console.log(tHeader);
+        //             excel.export_json_to_excel({
+        //                 header: tHeader,
+        //                 data,
+        //                 filename: this.filename,
+        //                 autoWidth: this.autoWidth,
+        //                 bookType: this.bookType
+        //             })
+        //             this.downloadLoading = false
+        //         })
+        //     },
+        //     formatJson(filterVal, jsonData) {
+        //     return jsonData.map(v => filterVal.map(j => {
+        //         if (j === 'timestamp') {
+        //         return parseTime(v[j])
+        //         } else {
+        //         return v[j]
+        //         }
+        //     }))
+        //     }
+        // },
 
         data: () => ({
             listLoading: true,

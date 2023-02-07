@@ -15,7 +15,7 @@
                                 <div class="input-group mb-3" v-if="hasAnyPermission([create_data])">
                                     <!-- /apps/forms/${table}/add_data -->
                                     <Link href="#" class="btn btn-primary input-group-text" data-bs-toggle="modal" data-bs-target="#add_dataModal" @click="newData"> <i class="fa fa-plus-circle me-2"></i> Add Data</Link>
-                                    <input type="text" class="form-control" placeholder="search by role name . . .">
+                                    <input type="text" class="form-control" placeholder="Search Data">
 
                                     <button class="btn btn-primary input-group-text" type="submit"> <i class="fa fa-search me-2"></i> SEARCH</button>
                                 </div>
@@ -279,7 +279,7 @@
                                                 <div v-for="rel in related">
                                                     <div v-if="rel.field_from == header.field_name">
                                                         <label class="fw-bold">{{ header.field_description }}</label>
-                                                        <select class="form-control" :name="header.field_name">
+                                                        <select class="form-control" v-model="selected[header.field_name]" :name="header.field_name">
                                                             <option v-for="option in rel[header.field_name]" :value="option[header.field_name]">{{option[rel_data.refer_to]}}</option>
                                                         </select>
                                                     </div>
@@ -310,7 +310,7 @@
                                         </div>
                                         <div v-else-if="header.input_type === 'Longtext'">
                                             <label class="fw-bold">{{ header.field_description }}</label>
-                                            <textarea class="form-control" :name="header.field_name" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
+                                            <textarea class="form-control" :name="header.field_name" :value="selectedUser[header.field_name]" type="number" :placeholder="header.field_description">{{ selectedUser[header.field_name] }}</textarea>
                                         </div>
                                         <div v-else-if="header.input_type === 'Yes/No'">
                                             <label class="fw-bold">{{ header.field_description }}</label>
@@ -491,6 +491,8 @@
 
         data: () => ({
             selectedUser: '',
+            sel:[],
+            selected:[],
             parent:'',
             selectedChainIds: -1,
             selectedSubChainIds: -1,
@@ -515,6 +517,10 @@
                     }
                     if(structures.input_type.split('#')[0] == 'Child') {
                         this.selectedSubChainIds = form[structures.field_name];
+                    }
+                    if(structures.relation == '1'){
+                        this.sel[structures.field_name] = form[structures.field_name];
+                        console.log(this.selected);
                     }
                 }
             },

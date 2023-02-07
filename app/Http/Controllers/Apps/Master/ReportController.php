@@ -41,6 +41,10 @@ class ReportController extends Controller
 
     public function show(Request $request, $name)
     {
+        if(auth()){
+            $user_id = auth()->user()->id;
+        }
+        $user = User::where('id',$user_id)->first();
         $select_field = '';$form = '';
         $select = DB::table('master_tables')->where('name',$name)->first();
         $table_name = $select->description;
@@ -67,6 +71,8 @@ class ReportController extends Controller
         return Inertia::render('Apps/Report/Show', [
             'group'         => DB::table('master_tablegroup')->get(),
             'table'         => $name,
+            'user_role'     => strtolower($user->getRoleNames()),
+            'user_id'       => $user_id,
             'csrfToken'     => csrf_token(),
             'table_name'    => $table_name,
             'title'         => $title,

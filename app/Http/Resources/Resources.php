@@ -8,7 +8,7 @@ class Resources extends JsonResource
 {
     public $status;
     public $message;
-    
+
     /**
      * __construct
      *

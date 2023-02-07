@@ -8,7 +8,7 @@
                 <div class="col-md-12">
                     <div class="card border-0 rounded-3 shadow border-top-purple">
                         <div class="card-header">
-                            <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> Report {{ table_name }}</span>
+                            <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> Report {{ table_name }} </span>
                         </div>
                         <div class="card-body">
                             <form class="card p-3" action="/apps/report/generate" method="get" target="_blank" >
@@ -16,11 +16,16 @@
                                 <input type="hidden" name="table" :value="table">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label class="fw-bold">Select User&nbsp&nbsp</label>
-                                        <select name="user" class="form-control" v-model="form.user">
-                                            <option value=""></option>
-                                            <option v-for="user in users" :value="user.id">{{ user.name }}</option>
-                                        </select>
+                                        <div v-if="user_role.includes('user')">
+                                            <input type="hidden" name="user" :value="user_id">
+                                        </div>
+                                        <div v-else>
+                                            <label class="fw-bold">Select User&nbsp&nbsp</label>
+                                            <select name="user" class="form-control" v-model="form.user">
+                                                <option value=""></option>
+                                                <option v-for="user in users" :value="user.id">{{ user.name }}</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="row">
@@ -155,6 +160,8 @@
             headers: Object,
             forms:Object,
             csrfToken: String,
+            user_role:String,
+            user_id:String,
         },
 
         data: () => ({

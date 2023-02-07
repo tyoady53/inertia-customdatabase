@@ -22,6 +22,7 @@ class FormController extends Controller
 {
     public function index()
     {
+        $a = array();
         if(auth()){
             $user_id = auth()->user()->id;
         }
@@ -41,7 +42,12 @@ class FormController extends Controller
         }
         $select_val = substr($e,0,-1);
         $select_val .= ')';
-        $form_access = DB::table('master_tables')->whereIn('name',$a)->get();
+        if($a){
+            $form_access = DB::table('master_tables')->whereIn('name',$a)->get();
+        }else{
+            $form_access = '';
+        }
+        
         return Inertia::render('Apps/Forms/Index', [
             'form_accesses'   => $form_access,
         ]);
@@ -117,12 +123,14 @@ class FormController extends Controller
 
     public function show(Request $request, $name)
     {
-        $request_name = request()->segment(count(request()->segments()));
-        $a = '';
         if(auth()){
             $user_id = auth()->user()->id;
         }
         $user = User::where('id',$user_id)->first();
+        // dd($user->getRoleNames());
+        $request_name = request()->segment(count(request()->segments()));
+        $a = '';
+
         $permissions = $user->getPermissionsViaRoles();
         if($request_name == 'manage'){
             $role_request = 'manage';
@@ -176,7 +184,11 @@ class FormController extends Controller
                 }
 			}
 			$selected = substr($select_field, 0,-1);
-            $form = DB::table($name)->selectRaw($selected)->where('status','1')->get();
+            if(str_contains(strtolower($user->getRoleNames()), 'user')){
+                $form = DB::table($name)->selectRaw($selected)->where('created_by',$user_id)->where('status','1')->get();
+            } else {
+                $form = DB::table($name)->selectRaw($selected)->where('status','1')->get();
+            }
 		} else {
             $form = DB::table($name)->latest()->get();
         }

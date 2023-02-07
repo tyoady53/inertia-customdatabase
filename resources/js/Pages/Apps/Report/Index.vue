@@ -15,13 +15,14 @@
                                 <thead>
                                     <tr>
                                         <th scope="col"> Table Name </th>
-                                        <th scope="col" style="width:50%">Group</th>
+                                        <!-- <th scope="col" style="width:50%">Group</th> -->
                                         <th scope="col" style="width:20%">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="form_access in form_accesses">
-                                        <td>{{ form_access.description }}</td><td>{{ form_access.group }}</td>
+                                        <td>{{ form_access.description }}</td>
+                                        <!-- <td>{{ form_access.group }}</td> -->
                                             <td class="text-center">
                                                 <Link :href="`/apps/report/${form_access.name}/show`" class="btn btn-success btn-sm me-2"><i class="fa fa-pencil-alt me-1"></i> Open Report</Link>
                                                 <!-- <button @click.prevent="destroy(role.id)" v-if="hasAnyPermission(['roles.delete'])" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> DELETE</button> -->

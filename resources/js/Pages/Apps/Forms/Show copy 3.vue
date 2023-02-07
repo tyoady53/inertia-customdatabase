@@ -373,7 +373,7 @@
                                                     <select class="form-control" :name="header.field_name" v-model="selectedSubChainIds">
                                                         <option v-for="chain in filteredChain" :value="chain[header.relate_to.split('#')[1]]">{{ chain[header.relate_to.split('#')[1]] }}</option>
                                                     </select>
-                                                </div>
+                                                </div> 
                                             </div>
                                         </div>
                                         <div v-else>

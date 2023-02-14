@@ -22,6 +22,7 @@ class UserTableSeeder extends Seeder
             'name'      => 'Administrator',
             'email'     => 'admin@gmail.com',
             'password'  => bcrypt('password'),
+            'division'  => '1',
         ]);
 
         //get all permissions

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRelationMasterTablesAndRole extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class AddRelationMasterTablesAndRole extends Migration
      */
     public function up()
     {
-        Schema::table('user_permits', function (Blueprint $table) {
-            $table->unsignedBigInteger('master_table_id')->nullable();
-
-            $table->foreign('master_table_id')->references('id')->on('master_tables');
+        Schema::create('master_divisions', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('created_by');
+            $table->timestamps();
         });
     }
 
@@ -27,6 +28,6 @@ class AddRelationMasterTablesAndRole extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('master_divisions');
     }
-}
+};

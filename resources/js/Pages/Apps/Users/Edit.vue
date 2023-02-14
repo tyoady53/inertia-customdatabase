@@ -54,6 +54,12 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div>
+                                        <label class="fw-bold">Division</label>
+                                        <select class="form-control">
+                                            <option v-for="div in division" :value="div.id" name="division">{{ div.name }}</option>
+                                        </select>
+                                    </div>
                                     <hr>
                                     <div class="mb-3">
                                         <label class="fw-bold">Role</label>
@@ -64,7 +70,7 @@
                                         </div>
 
                                         <div class="row mt-3">
-                                            <div class="col-12">                                           
+                                            <div class="col-12">
                                                 <button class="btn btn-primary shadow-sm rounded-sm" type="submit">UPDATE</button>
                                                 <button class="btn btn-warning shadow-sm rouned-sm ms-3" type="reset">RESET</button>
                                             </div>
@@ -105,7 +111,8 @@ export default {
     props: {
         errors: Object,
         user: Object,
-        roles: Array
+        roles: Array,
+        division: Array,
     },
 
     setup(props) {

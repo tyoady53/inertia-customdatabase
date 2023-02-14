@@ -23,6 +23,7 @@ class CreateMasterTableStructuresTable extends Migration
             $table->string('relation',1);
             $table->text('relate_to')->nullable();
             $table->string('input_type');
+            $table->string('required')->default('');
             $table->timestamps();
             $table->string('created_by');
 

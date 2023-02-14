@@ -12,7 +12,6 @@
                                 <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> ADD USER</span>
                             </div>
                             <div class="card-body">
-
                                 <form @submit.prevent="submit">
                                     <div class="row">
                                         <div class="col-md-6">
@@ -53,6 +52,12 @@
                                                 {{ errors.password_confirmation }}
                                             </div>
                                         </div>
+                                    </div>
+                                    <div>
+                                        <label class="fw-bold">Division</label>
+                                        <select class="form-control" v-model="form.division">
+                                            <option v-for="div in division" :value="div.id" name="division">{{ div.name }}</option>
+                                        </select>
                                     </div>
                                     <hr>
                                     <div class="mb-3">
@@ -103,7 +108,8 @@
 
         props: {
             errors: Object,
-            roles: Array
+            roles: Array,
+            division:Array,
         },
 
         setup() {
@@ -111,6 +117,7 @@
                 name: '',
                 email: '',
                 password: '',
+                division:'',
                 password_confirmation: '',
                 roles: []
             });
@@ -122,6 +129,7 @@
                     email: form.email,
                     password: form.password,
                     password_confirmation: form.password_confirmation,
+                    division: form.division,
                     roles: form.roles
                 }, {
                     onSuccess: () => {

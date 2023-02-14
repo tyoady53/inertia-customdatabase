@@ -12,12 +12,15 @@
                                 <span class="font-weight-bold"><i class="fa fa-shield-alt"></i> ADD FORM </span>
                             </div>
                             <div class="card-body">
-
                                 <form @submit.prevent="submit">
                                     <div class="mb-3">
                                         <label class="fw-bold">Form Name</label>
                                         <input class="form-control" v-model="form.name" :class="{ 'is-invalid': errors.name }" type="text" placeholder="Form Name">
-
+                                        <br>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" v-model="form.extend" id="extend">
+                                            <label class="form-check-label" for="extend">Extend</label>
+                                        </div>
                                         <div v-if="errors.name" class="alert alert-danger">
                                             {{ errors.name }}
                                         </div>
@@ -34,7 +37,7 @@
                                                 <tr v-for="(role, index) in roles" :key="index">
                                                     <td>&nbsp&nbsp
                                                         <input class="form-check-input" type="checkbox" v-model="form.roles" :value="role.name" :id="`check-${role.id}`" @change="check(role)">
-                                                        <label class="form-check-label" :for="`check-${role.id}`">{{ role.name }}</label> 
+                                                        <label class="form-check-label" :for="`check-${role.id}`">{{ role.name }}</label>
                                                     </td>
                                                     <td class="text-center">
                                                         <input class="form-check-input" type="checkbox" v-model="form.create" :value="`${role.name}.create`" :id="`create-${role.name}`">
@@ -109,7 +112,7 @@
 
         props: {
             errors: Object,
-            roles: Array
+            roles: Array,
         },
 
         data: () => ({
@@ -125,6 +128,7 @@
         setup() {
             const form = reactive({
                 name: '',
+                extend:'',
                 roles: [],
                 create: [],
                 edit: [],
@@ -135,6 +139,7 @@
 
                 Inertia.post('/apps/forms/new_form', {
                     name: form.name,
+                    extend: form.extend,
                     roles: form.roles,
                     create: form.create,
                     edit: form.edit,

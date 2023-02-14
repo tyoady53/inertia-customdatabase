@@ -23,7 +23,7 @@
           <!-- end content -->
   
           <footer class="c-footer">
-            <div>&copy; 2023 - PT. WYNACOM UNITAMA SEJAHTERA</div>
+            <div>&copy; {{ new Date().getFullYear() }} - PT. WYNACOM UNITAMA SEJAHTERA</div>
           </footer>
         </div>
       </div>

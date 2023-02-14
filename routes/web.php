@@ -82,6 +82,10 @@ Route::prefix('apps')->group(function() {
 
             Route::post('set_parent', [FormController::class, 'set_parent'])->name('forms.set_parent');
 
+            Route::get('{form:slug}/extends/{id}', [FormController::class, 'extends'])->name('forms.extends');
+
+            Route::post('{form:slug}/add_extend/{id}', [FormController::class, 'add_extends']);
+
             // Route::post('{form:slug}/addcolumn', [FormController::class, 'addcolumn']);
 
             // Route::post('{form:slug}/update', [FormController::class, 'update']);

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Apps\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\master_table;
+use App\Models\Extend;
+use App\Models\MasterTable;
 use App\Models\master_table_structure;
+use App\Models\MasterAssignment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -42,12 +44,13 @@ class FormController extends Controller
         }
         $select_val = substr($e,0,-1);
         $select_val .= ')';
+        // dd(MasterTable::get());
         if($a){
             $form_access = DB::table('master_tables')->whereIn('name',$a)->get();
         }else{
             $form_access = '';
         }
-        
+
         return Inertia::render('Apps/Forms/Index', [
             'form_accesses'   => $form_access,
         ]);
@@ -65,12 +68,59 @@ class FormController extends Controller
                 $a .= $permissions[$j]['name'].', ';
             }
         }
-        $roles = Role::all();
+
+        $roles = Role::where('name','!=','superadmin')->get();
 
         if(str_contains($a, 'form.create')){
             return inertia('Apps/Forms/Create', [
                 'roles' => $roles,
             ]);
+        }
+
+        return Inertia::render('Apps/Forbidden', [
+        ]);
+    }
+
+    public function extends(Request $request,$name,$id){
+        if(auth()){
+            $user_id = auth()->user()->id;
+        }
+        // $data   = DB::table($name)->where('index_id',$id)->first();
+        $data   = DB::table($name)
+            ->join('master_assignment', $name.'.index_id', '=', "master_assignment.index_id")
+            ->select($name.'.*')
+            ->where('master_assignment.user_id',$user_id)
+            ->where('master_assignment.index_id',$id)
+            ->union(DB::table($name)->where('created_by',$user_id))->orderBy('id','ASC')
+            ->first();
+            // dd($data);
+        $ts = User::where('id',$data->created_by)->first();
+
+        $extend = Extend::with('user','files')->where('index_id',$id)->get();
+        // dd($data,$extend,$ts);
+
+        if($data->index_id){
+            return inertia('Apps/Forms/Extend/Index', [
+                'data'          => $data,
+                'extend'        => $extend,
+                'treat_starter' => $ts,
+                'ticket'        => $id,
+                'table'         => $name,
+                'csrfToken'     => csrf_token(),
+            ]);
+        }
+
+        return Inertia::render('Apps/Forbidden', [
+        ]);
+    }
+
+    public function add_extends(Request $request,$name,$id){
+        // dd($name,$id);
+        $select = DB::table('master_tables')->where('name',$name)->first();
+        $data   = Extend::create(['table_id'=>$select->id,'index_id'=>$id,'description'=>$request->description,'created_by'=>auth()->user()->id]);
+
+        if($data){
+            return redirect()->route('forms.extends',[$name,$id]);
         }
 
         return Inertia::render('Apps/Forbidden', [
@@ -85,13 +135,28 @@ class FormController extends Controller
         $create         = 'form-'.$table_name.'.create';
         $edit           = 'form-'.$table_name.'.edit';
         $delete         = 'form-'.$table_name.'.delete';
-        $group_name     = "superadmin";
-        $query          = "CREATE TABLE $table_name (id int(11) NOT NULL AUTO_INCREMENT, created_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, updated_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-         created_by int(11), updated_by int(11), status varchar(1) NOT NULL, PRIMARY KEY (`id`) USING BTREE)";
+        $group_name     = "-";
+        $base          = "id int(11) NOT NULL AUTO_INCREMENT, created_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, updated_at timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+         created_by int(11), updated_by int(11), status varchar(1) NOT NULL, ";
 
+        if($request->extend){
+            $extend = '1';
+            $base .= "index_id varchar(9),";
+        }else{
+            $extend = '0';
+        }
+        MasterTable::create([
+            'group'         => '-',
+            'name'          => $table_name,
+            'description'   => $request->name,
+            'is_show'       => '1',
+            'created_by'    => $user_id,
+            'updated_by'    => $user_id,
+            'extend'        => $extend,
+        ]);
+        $query ="CREATE TABLE $table_name (".$base."PRIMARY KEY (`id`) USING BTREE)ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
         DB::statement($query);
-
-        DB::insert("INSERT INTO master_tables (`group`, `name`, `description`,`is_show`,`created_by`,`updated_by`) VALUES ('$group_name','$table_name','$request->name','1','$user_id','$user_id')");
+        // DB::insert("INSERT INTO master_tables (`group`, `name`, `description`,`is_show`,`created_by`,`updated_by`) VALUES ('$group_name','$table_name','$request->name','1','$user_id','$user_id')");
 
         $input_index    = Permission::create(['name' => $index,   'guard_name' => 'web']);
         $input_create   = Permission::create(['name' => $create,  'guard_name' => 'web']);
@@ -117,6 +182,7 @@ class FormController extends Controller
                 }
             }
         }
+        DB::table('role_has_permissions')->insert(['permission_id'=>$input_index->id , 'role_id'=>1]);
 
         return redirect()->route('forms.index');
     }
@@ -127,7 +193,6 @@ class FormController extends Controller
             $user_id = auth()->user()->id;
         }
         $user = User::where('id',$user_id)->first();
-        // dd($user->getRoleNames());
         $request_name = request()->segment(count(request()->segments()));
         $a = '';
 
@@ -184,10 +249,19 @@ class FormController extends Controller
                 }
 			}
 			$selected = substr($select_field, 0,-1);
-            if(str_contains(strtolower($user->getRoleNames()), 'user')){
-                $form = DB::table($name)->selectRaw($selected)->where('created_by',$user_id)->where('status','1')->get();
+            if($select->extend){
+                $form = DB::table($name)
+                    ->join('master_assignment', $name.'.index_id', '=', "master_assignment.index_id")
+                    ->select($name.'.*')
+                    ->where('master_assignment.user_id',$user_id)
+                    ->union(DB::table($name)->where('created_by',$user_id))->orderBy('id','ASC')
+                    ->get();
             } else {
-                $form = DB::table($name)->selectRaw($selected)->where('status','1')->get();
+                if(str_contains(strtolower($user->getRoleNames()), 'user')){
+                    $form = DB::table($name)->selectRaw($selected)->where('created_by',$user_id)->where('status','1')->get();
+                } else {
+                    $form = DB::table($name)->selectRaw($selected)->where('status','1')->get();
+                }
             }
 		} else {
             $form = DB::table($name)->latest()->get();
@@ -214,12 +288,12 @@ class FormController extends Controller
                 $checklist_data[explode('#',$he->relate_to)[0]] = [explode('#',$he->relate_to)[0] => DB::table(explode('#',$he->relate_to)[0])->get(),"field_from" => explode('#',$he->relate_to)[1]];
             }
         }
+        // dd($header);
         $field  = DB::table('master_datatype')->get();
         $show_table  = DB::table('master_tables')->where('is_show',1)->get();
         $structures  = DB::table('master_table_structures')->where('is_show',1)->get();
         if($role_request == 'manage'){
             return Inertia::render('Apps/Forms/Manage/Manage', [
-                'group'         => DB::table('master_tablegroup')->get(),
                 'table'         => $name,
                 'create_data'   => 'form-'.$name.'.create',
                 'edit_data'     => 'form-'.$name.'.edit',
@@ -248,7 +322,6 @@ class FormController extends Controller
                 switch($request_name){
                     case 'show':
                         return Inertia::render('Apps/Forms/Show', [
-                            'group'         => DB::table('master_tablegroup')->get(),
                             'table'         => $name,
                             'create_data'   => 'form-'.$name.'.create',
                             'edit_data'     => 'form-'.$name.'.edit',
@@ -270,11 +343,15 @@ class FormController extends Controller
                             'child_data'    => $child_data,
                             'parent_count'  => $parent_count,
                             'checklist_data'=> $checklist_data,
+                            'today'         => Carbon::today(),
+                            'extend'        => $select->extend,
+                            'divisions'     => DB::table('master_divisions')->where('id','!=','1')->where('id','!=',auth()->user()->division)->get(),
+                            // 'divisions'     => DB::table('master_divisions')->select('division')->groupBy('division')->where('division','!=',auth()->user()->division)->get(),
+                            'users'         => DB::table('users')->where('id','!=',auth()->user()->id)->get(),
                         ]);
                         break;
                     case 'add_data' :
                         return Inertia::render('Apps/Forms/Add_Data', [
-                            'group'         => DB::table('master_tablegroup')->get(),
                             'table'         => $name,
                             'create_data'   => 'form-'.$name.'.create',
                             'edit_data'     => 'form-'.$name.'.edit',
@@ -355,14 +432,35 @@ class FormController extends Controller
     }
 
     public function create_data(Request $request){
+        // dd($request);
+        $generated = '';
         $table          = $request->table;
         $select         = DB::table('master_tables')->where('name',$request->table)->first();
         $table_head     = DB::table('master_table_structures')->where('table_id',$select->id)->where('is_show',1)->get();
-
+        $last_data      = DB::table($table)->latest('created_at')->first();
         $now            = Carbon::now()->toDateTimeString();
         $auth           = auth()->user()->id;
 		$select_field	= 'created_at,updated_at,created_by,updated_by,status,';
 		$values	        = '"'.$now.'","'.$now.'",'.$auth.','.$auth.',"1",';
+        if($select->extend=='1'){
+            $select_field  .= 'index_id,';
+            if($request->create_ticket){
+                if($last_data){
+                    if(substr($last_data->index_id,0,5)!=date("ym").$select->id){
+                        $generated = date("ym").$select->id.'0001';
+                        $values .= $generated.',';
+                    }else{
+                        $generated = $last_data->index_id+1;
+                        $values .= $generated .',';
+                    }
+                } else {
+                    $generated = date("ym").$select->id.'0001';
+                    $values .= $generated.',';
+                }
+            } else {
+                $values .= "'',";
+            }
+        }
 
         foreach ($table_head as $t){
             $fields = $t->field_name;
@@ -385,6 +483,19 @@ class FormController extends Controller
         $insert_value = substr($values, 0,-1);
 
 		$insert = DB::statement("INSERT INTO $table ($selected) VALUES ($insert_value);");
+        if($request->assignSelector){
+            if($request->assignSelector == 'division'){
+                $get_user = User::where('division', $request->assign_to)->get();
+                foreach($get_user as $user){
+                    // $m .= $user->id;
+                    MasterAssignment::create(['index_id' => $generated,   'user_id' => $user->id]);
+                }
+                // dd($m);
+            } else if ($request->assignSelector == 'user'){
+                MasterAssignment::create(['index_id' => $generated,   'user_id' => $request->assign_to]);
+            }
+            // dd('this is selector');
+        }
 		if($insert){
 			return redirect()->route('forms.show',$table);
 		}
@@ -414,8 +525,13 @@ class FormController extends Controller
         $structure->relate_to           = $relate_to;
         $structure->created_by          = auth()->user()->id;
         $structure->save();
+        if(str_contains($data_type->data_type, 'Text')||str_contains($data_type->data_type, 'varchar')){
+            $insert_type = $data_type->data_type." CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL";
+        }else{
+            $insert_type = $data_type->data_type;
+        }
 
-        $query = "ALTER TABLE `$table_name` ADD `$field_name` $data_type->data_type";
+        $query = "ALTER TABLE `$table_name` ADD `$field_name` $insert_type";
 
         DB::statement($query);
 

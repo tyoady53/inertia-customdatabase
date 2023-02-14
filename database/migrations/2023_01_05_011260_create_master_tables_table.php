@@ -19,12 +19,13 @@ class CreateMasterTablesTable extends Migration
             $table->string('name');
             $table->string('description');
             $table->string('is_show',2);
+            $table->string('extend',2);
             $table->string('created_by');
             $table->string('updated_by');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
-            $table->foreign('group')->references('name')->on('master_tablegroup');
+            // $table->foreign('group')->references('name')->on('master_tablegroup');
         });
     }
 

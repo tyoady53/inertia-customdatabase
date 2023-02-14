@@ -14,6 +14,7 @@ class ReportController extends Controller
 {
     public function index()
     {
+        $a = array();
         if(auth()){
             $user_id = auth()->user()->id;
         }
@@ -69,7 +70,7 @@ class ReportController extends Controller
             $selected_data[$head->field_name] = DB::table($name)->distinct()->get($head->field_name);
         }
         return Inertia::render('Apps/Report/Show', [
-            'group'         => DB::table('master_tablegroup')->get(),
+            // 'group'         => DB::table('master_tablegroup')->get(),
             'table'         => $name,
             'user_role'     => strtolower($user->getRoleNames()),
             'user_id'       => $user_id,

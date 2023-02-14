@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Apps;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Resources;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -14,10 +15,22 @@ class RoleController extends Controller
 {
     public function index()
     {
+        if(auth()){
+            $user_id = auth()->user()->id;
+        }
+        $user = User::where('id',$user_id)->first();
         $ua = request()->server('HTTP_USER_AGENT');
-        $roles = Role::when(request()->q, function($roles) {
-            $roles = $roles->where('name', 'like', '%' . request()->q . '%');
-        })->with('permissions')->latest()->paginate(100);
+
+        $role_name = $user->getRoleNames();
+        if($role_name[0] == 'superadmin'){
+            $roles = Role::when(request()->q, function($roles) {
+                $roles = $roles->where('name', 'like', '%' . request()->q . '%');
+            })->with('permissions')->latest()->paginate(100);
+        } else {
+            $roles = Role::where('name','!=','superadmin')->when(request()->q, function($roles) {
+                $roles = $roles->where('name', 'like', '%' . request()->q . '%');
+            })->with('permissions')->latest()->paginate(100);
+        }
 
         if(stripos($ua,'okhttp') === false){
             return Inertia('Apps/Roles/Index', [
